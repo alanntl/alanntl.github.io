@@ -208,8 +208,13 @@
       .split{grid-template-columns:1fr;gap:18px;padding:44px 0}
       .hero{padding:52px 0 38px}
       .head{padding:46px 0 26px}
-      .strip{height:52px;overflow-x:auto;overflow-y:hidden;padding-block:6px;scrollbar-width:none}
-      .strip::-webkit-scrollbar{display:none}
+      /* Scroll the wrapper, not the strip. Giving the strip itself a
+         min-width is what makes the widths keep meaning something: squeezed
+         into 375px there is almost no leftover space, so every segment sits
+         at its basis and the encoding flattens to a row of equal blocks. */
+      .strip-scroll{overflow-x:auto;overflow-y:hidden;padding-block:6px;scrollbar-width:none}
+      .strip-scroll::-webkit-scrollbar{display:none}
+      .strip{height:52px;min-width:520px}
       .seg{flex-basis:58px}
       .item{grid-template-columns:1fr}
       .item .meta{justify-content:flex-start}
@@ -264,7 +269,7 @@
                 <p class="tag" style="margin:0">Sections, by weight</p>
                 <p class="tag" style="margin:0" id="strip-count"></p>
               </div>
-              <div class="strip" id="strip" role="group" aria-label="Jump to a section"></div>
+              <div class="strip-scroll"><div class="strip" id="strip" role="group" aria-label="Jump to a section"></div></div>
               <div class="strip-legend">
                 <span><b></b><span class="tag">Current</span></span>
                 <span><b></b><span class="tag">Jump to</span></span>
