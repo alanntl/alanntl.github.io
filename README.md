@@ -54,17 +54,48 @@ Adding a section means adding one object to `SECTIONS` and one matching
 `<section class="panel" data-panel="…">`. The rail, the mobile menu and the
 hydrograph all build themselves from `SECTIONS`, so they can't drift apart.
 
-## The flow field, if you ever tune it
+## The flow field
 
-Three numbers in the `FIELD` module govern whether it is visible at all, and they
-only work together:
+**It is a real incompressible flow, not an angle map.** The usual generative-art
+shortcut is to take a noise value and use it directly as a heading. That is not a
+physical field — it has arbitrary divergence, so particles pile into sinks and
+evacuate sources, and re-seeding quietly hides it. Measured mean `|div|` was 1.5%
+of local speed.
 
-- `drift` — pixels advanced per frame. Below about 1px the segments are
-  sub-pixel and antialiasing dissolves them. At 0.78 the field was invisible.
+Instead `psi(x,y)` is a **stream function** and the velocity is its perpendicular
+gradient:
+
+```
+u =  ∂ψ/∂y        v = -∂ψ/∂x
+```
+
+which is divergence-free identically, since `∂²ψ/∂x∂y − ∂²ψ/∂y∂x = 0`. That is
+the condition for incompressible 2D flow, and it is why the level sets of ψ *are*
+the streamlines — the drawing is a genuine streamline plot. Measured mean `|div|`
+is now `3e-7`, five orders of magnitude better.
+
+The mouse is a **Rankine vortex** superposed on it — irrotational `K/(2πr)`
+outside a 34px core, solid-body rotation inside so there is no singularity. A
+point vortex is itself divergence-free, so the combined field stays
+incompressible (measured `1.9e-5`). Its reach comes from the `1/r` decay, not
+from a tuned cutoff radius.
+
+Numbers that matter, all measured rather than guessed:
+
+- `GAIN` — maps `grad(ψ)` to px/frame. At 940 the median speed was 0.92px, under
+  the 1.1px visibility floor, so most particles clamped and the speed variation
+  vanished. **2050** puts the median at 2.0px, p90 at 3.6.
+- `CIRC` — vortex circulation. 2600 gives 6.9px/frame at r=60 and 3.45px at
+  r=120, against the 2.0px median base flow.
 - the fade alpha in `frame()` — a trail decays to 1/e in roughly `1/alpha`
-  frames. At `.034` the canvas was wiped in half a second and 0.36% of pixels
-  were inked; at `.0022` it holds ~7s and reaches 8.5%.
+  frames. At `.034` the canvas wiped in half a second and 0.36% of pixels were
+  inked; at `.0022` it holds ~7s and settles at ~8%.
 - `COUNT()` — particle budget, scaled to viewport area and capped.
+
+Step length follows the field's own magnitude rather than being constant, which
+is what makes the vortex legible; it is floored at 1.1px (sub-pixel segments
+dissolve under antialiasing) and capped at 9px so the vortex core cannot fling a
+particle across the canvas in one frame.
 
 `prime()` traces the streamlines once, synchronously, at load (~25ms). Without it
 the animated loop needs about 7 seconds to build a visible drawing, so the first
