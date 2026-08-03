@@ -206,7 +206,14 @@
      field uses. Height at each station is the number of entries in that
      section, so it is a real reading of the site, and each station is a
      link. Same data, domain's own notation. */
-  .gauge{margin:0}
+  /* The chart sits in the right half, where the directional scrim is
+     deliberately thin — so it carries its own soft backdrop. It is
+     navigation, not ornament, and has to stay readable at full field
+     density. Soft-edged rather than a panel, so it doesn't read as a box. */
+  .gauge{position:relative;margin:0}
+  .gauge::before{content:"";position:absolute;inset:-30px -40px -20px;z-index:-1;
+    background:radial-gradient(72% 92% at 50% 55%,rgba(10,15,14,.88) 0%,
+      rgba(10,15,14,.66) 52%,rgba(10,15,14,0) 100%)}
   .gauge-head{display:flex;justify-content:space-between;align-items:baseline;gap:20px;margin-bottom:18px}
   .gauge svg{width:100%;height:auto;overflow:visible}
   .gauge .axis{stroke:var(--line);stroke-width:1}
