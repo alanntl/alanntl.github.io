@@ -3,307 +3,351 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="description" content="Alan Ng — I build browser-native tools that run entirely on your machine, and research learning systems for hard combinatorial problems.">
-  <meta name="theme-color" content="#f3f3f0" media="(prefers-color-scheme: light)">
-  <meta name="theme-color" content="#0f1116" media="(prefers-color-scheme: dark)">
-  <meta property="og:title" content="Alan Ng">
-  <meta property="og:description" content="Browser-native tools and reinforcement learning research.">
+  <meta name="description" content="Alan Ng — Research Fellow at Western Sydney University, applying AI and data analytics to water science. Engineering, data science, finance and software systems.">
+  <meta name="theme-color" content="#0a0f0e">
+  <meta name="color-scheme" content="dark">
+  <meta property="og:title" content="Alan Ng — researcher, Sydney">
+  <meta property="og:description" content="Research Fellow at Western Sydney University, applying AI and data analytics to water science.">
   <meta property="og:type" content="website">
   <meta property="og:url" content="https://alanntl.github.io/">
   <title>Alan Ng</title>
-  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%2315171c'/%3E%3Crect x='5' y='13' width='9' height='6' fill='%232b4cf0'/%3E%3Crect x='16' y='13' width='4' height='6' fill='%236b6f78'/%3E%3Crect x='22' y='13' width='5' height='6' fill='%232b4cf0'/%3E%3C/svg%3E">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%230a0f0e'/%3E%3Cpath d='M3 20c4-6 6 4 10-2s6 4 10-3 6 2 6 2' stroke='%23e8c46a' stroke-width='1.6' fill='none'/%3E%3Cpath d='M3 25c4-6 6 4 10-2s6 4 10-3' stroke='%23ece5d8' stroke-opacity='.45' stroke-width='1.2' fill='none'/%3E%3C/svg%3E">
   <style>
-    /* ─── Design tokens ────────────────────────────────────────────────
-       Monochrome graphite + a single cobalt accent — the colour a
-       selected region takes in a video timeline, which is the interface
-       this whole site is modelled on. Light and dark are peers, not a
-       theme bolted on: every token is redeclared below. */
-    :root{
-      --paper:#f3f3f0; --card:#fff; --raise:#fafaf8;
-      --ink:#15171c; --muted:#6b6f78; --faint:#9aa0a8;
-      --line:#dedbd4; --line-soft:#e9e7e1;
-      --accent:#2b4cf0; --accent-ink:#2b4cf0; --accent-soft:rgba(43,76,240,.09);
-      --skip:#d9d6cd; --on-accent:#fff;
-      --rail:264px; --shell:1080px;
-      --sans:ui-sans-serif,-apple-system,BlinkMacSystemFont,"Helvetica Neue","Segoe UI",Arial,sans-serif;
-      --mono:ui-monospace,SFMono-Regular,"SF Mono",Menlo,Consolas,"Liberation Mono",monospace;
-    }
-    @media (prefers-color-scheme:dark){
-      :root{
-        --paper:#0f1116; --card:#161920; --raise:#1b1f27;
-        --ink:#e9eaee; --muted:#8f959f; --faint:#6b7280;
-        --line:#262a33; --line-soft:#1f232b;
-        --accent:#7d94ff; --accent-ink:#95a8ff; --accent-soft:rgba(125,148,255,.12);
-        --skip:#39404f; --on-accent:#0f1116;
-      }
-    }
+  /* ══════════════════════════════════════════════════════════════════
+     CATCHMENT
+     Art direction drawn from the instruments of the subject's own field:
+     streamlines, contour isolines, hydrographs. The page commits to a
+     single dark ground on purpose — the streamline field only reads
+     against deep colour, so there is no light counterpart.
+     ══════════════════════════════════════════════════════════════════ */
+  :root{
+    --deep:#0a0f0e;          /* ground — near-black with a green cast */
+    --deeper:#060a09;
+    --bone:#ece5d8;          /* type */
+    --muted:#8d968f;
+    --faint:#5b645f;
+    --mark:#e8c46a;          /* sodium / gauge-plate yellow, used sparingly */
+    --line:rgba(236,229,216,.13);
+    --line-soft:rgba(236,229,216,.07);
+    --rail:212px;
+    --shell:1000px;
+    --serif:"Iowan Old Style","Palatino Linotype",Palatino,"Book Antiqua",Georgia,serif;
+    --mono:ui-monospace,SFMono-Regular,"SF Mono",Menlo,Consolas,"Liberation Mono",monospace;
+    --sans:ui-sans-serif,-apple-system,BlinkMacSystemFont,"Helvetica Neue",Arial,sans-serif;
+    --ease:cubic-bezier(.22,.68,.28,1);
+  }
 
-    /* ─── Base ─────────────────────────────────────────────────────── */
-    *{box-sizing:border-box}
-    html{scroll-behavior:smooth;-webkit-text-size-adjust:100%}
-    body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--sans);font-size:16px;line-height:1.6;-webkit-font-smoothing:antialiased}
-    a{color:inherit}
-    img{display:block;max-width:100%}
-    button,input{font:inherit;color:inherit}
-    ::selection{background:var(--accent);color:#fff}
-    :focus-visible{outline:2px solid var(--accent);outline-offset:3px;border-radius:2px}
-    .skip{position:fixed;z-index:200;top:12px;left:12px;padding:10px 16px;background:var(--card);border:1px solid var(--line);transform:translateY(-160%)}
-    .skip:focus{transform:none}
+  *{box-sizing:border-box}
+  html{-webkit-text-size-adjust:100%}
+  body{
+    margin:0;background:var(--deep);color:var(--bone);
+    font-family:var(--sans);font-size:16px;line-height:1.62;
+    -webkit-font-smoothing:antialiased;overflow-x:hidden;
+  }
+  a{color:inherit}
+  img{display:block;max-width:100%}
+  button,input{font:inherit;color:inherit}
+  ::selection{background:var(--mark);color:var(--deep)}
+  :focus-visible{outline:1px solid var(--mark);outline-offset:4px}
+  .skip{position:fixed;z-index:300;top:14px;left:14px;padding:10px 16px;background:var(--deep);border:1px solid var(--mark);transform:translateY(-200%)}
+  .skip:focus{transform:none}
 
-    /* Type roles. The mono face carries every label, timecode and tag —
-       the display face is only ever used big and tightly tracked. */
-    .display{font-weight:640;letter-spacing:-.035em;line-height:1.02}
-    .tag{font-family:var(--mono);font-size:.66rem;letter-spacing:.13em;text-transform:uppercase;color:var(--muted)}
-    .tc{font-family:var(--mono);font-size:.66rem;letter-spacing:.09em;color:var(--accent-ink)}
+  /* ─── The streamline field ─────────────────────────────────────────
+     A full-viewport canvas behind everything. Particles advect through
+     a noise-driven flow field, leaving hairline trails that accumulate
+     like a plotter drawing. It is a picture of flow, which is the
+     subject, rather than decoration applied on top of it. */
+  /* Opacity is driven per-section from script: full strength behind the
+     hero, dimmed behind the reading panels so body copy stays legible.
+     The art carries the entrance; it should not fight the text. */
+  #flow{position:fixed;inset:0;z-index:0;display:block;pointer-events:none;
+    transition:opacity 1.1s var(--ease)}
+  /* Just enough vignette to keep type legible over the busiest part of the
+     field — heavier than this and the drawing disappears entirely. */
+  .veil{position:fixed;inset:0;z-index:1;pointer-events:none;
+    background:radial-gradient(140% 100% at 18% 10%,rgba(10,15,14,.55) 0%,rgba(10,15,14,.28) 45%,rgba(10,15,14,.42) 100%)}
 
-    /* ─── Sidebar rail ─────────────────────────────────────────────── */
-    .rail{position:fixed;z-index:30;inset:0 auto 0 0;width:var(--rail);display:flex;flex-direction:column;gap:26px;padding:34px 26px 28px;background:var(--paper);border-right:1px solid var(--line)}
-    .mark{display:flex;align-items:baseline;gap:9px;text-decoration:none}
-    .mark b{font:640 1.5rem/1 var(--sans);letter-spacing:-.04em}
-    .mark span{font-family:var(--mono);font-size:.6rem;letter-spacing:.16em;text-transform:uppercase;color:var(--muted)}
-    .rail-note{font-family:var(--mono);font-size:.66rem;line-height:1.7;color:var(--muted)}
-    .rail-note b{display:block;color:var(--ink);font-weight:600}
+  /* ─── Type roles ───────────────────────────────────────────────── */
+  .display{font-family:var(--serif);font-weight:400;letter-spacing:-.022em;line-height:.98}
+  .tag{font-family:var(--mono);font-size:.63rem;letter-spacing:.22em;text-transform:uppercase;color:var(--muted)}
+  .tc{font-family:var(--mono);font-size:.63rem;letter-spacing:.22em;color:var(--mark)}
 
-    .nav{display:grid;gap:1px;margin-top:-4px}
-    .nav button{position:relative;display:grid;grid-template-columns:12px 38px 1fr;align-items:baseline;gap:10px;width:100%;padding:9px 0;border:0;background:none;text-align:left;cursor:pointer;color:var(--muted);transition:color .18s}
-    /* The in-point bracket — the same glyph Quickmini uses to mark a cut. */
-    .nav button::before{content:"";font-family:var(--mono);font-size:.8rem;color:var(--accent-ink);opacity:0}
-    .nav button i{font-family:var(--mono);font-size:.6rem;font-style:normal;color:var(--faint);letter-spacing:.06em}
-    .nav button span{font-size:.92rem;letter-spacing:-.01em}
-    .nav button:hover{color:var(--ink)}
-    .nav button[aria-selected=true]{color:var(--ink)}
-    .nav button[aria-selected=true]::before{content:"[";opacity:1}
-    .nav button[aria-selected=true] span{font-weight:600}
-    .nav button[aria-selected=true] i{color:var(--accent-ink)}
+  /* ─── Rail ─────────────────────────────────────────────────────── */
+  .rail{position:fixed;z-index:20;inset:0 auto 0 0;width:var(--rail);
+    display:flex;flex-direction:column;gap:30px;padding:38px 26px 30px;
+    border-right:1px solid var(--line-soft);backdrop-filter:blur(3px)}
+  .mark-a{text-decoration:none;display:block}
+  .mark-a b{display:block;font-family:var(--serif);font-size:1.5rem;font-weight:400;letter-spacing:-.02em;line-height:1}
+  .mark-a span{display:block;margin-top:8px;font-family:var(--mono);font-size:.57rem;letter-spacing:.2em;text-transform:uppercase;color:var(--faint)}
 
-    /* ─── Mobile bar ───────────────────────────────────────────────── */
-    .bar{display:none;position:sticky;top:0;z-index:40;align-items:center;justify-content:space-between;gap:14px;padding:14px 20px;background:var(--paper);border-bottom:1px solid var(--line)}
-    .bar details{position:relative}
-    .bar summary{list-style:none;cursor:pointer;padding:7px 12px;border:1px solid var(--line);font-family:var(--mono);font-size:.68rem;letter-spacing:.12em;text-transform:uppercase}
-    .bar summary::-webkit-details-marker{display:none}
-    .bar details[open] summary{background:var(--ink);color:var(--paper);border-color:var(--ink)}
-    .bar nav{position:absolute;right:0;top:calc(100% + 8px);z-index:50;display:grid;min-width:180px;padding:6px;background:var(--card);border:1px solid var(--line);box-shadow:0 18px 44px rgba(0,0,0,.14)}
-    .bar nav button{display:flex;justify-content:space-between;gap:14px;padding:10px 12px;border:0;background:none;text-align:left;cursor:pointer;font-size:.9rem}
-    .bar nav button:hover{background:var(--accent-soft);color:var(--accent-ink)}
+  .nav{display:grid;gap:2px;margin-top:-6px}
+  .nav button{position:relative;display:grid;grid-template-columns:22px 1fr;align-items:baseline;gap:9px;
+    width:100%;padding:8px 0;border:0;background:none;text-align:left;cursor:pointer;
+    color:var(--muted);transition:color .4s var(--ease)}
+  .nav button i{font-family:var(--mono);font-size:.58rem;font-style:normal;color:var(--faint);letter-spacing:.08em;transition:color .4s var(--ease)}
+  .nav button span{font-family:var(--serif);font-size:1.02rem;letter-spacing:.005em}
+  .nav button::after{content:"";position:absolute;left:22px;right:100%;bottom:4px;height:1px;background:var(--mark);opacity:.55;transition:right .5s var(--ease)}
+  .nav button:hover{color:var(--bone)}
+  .nav button:hover::after{right:34%}
+  .nav button[aria-selected=true]{color:var(--bone)}
+  .nav button[aria-selected=true] i{color:var(--mark)}
+  .nav button[aria-selected=true]::after{right:0;opacity:1}
 
-    /* ─── Page & panels ────────────────────────────────────────────── */
-    .page{margin-left:var(--rail);min-height:100vh}
-    .shell{width:min(100% - 56px,var(--shell));margin-inline:auto}
-    .panel[hidden]{display:none}
-    .panel{animation:rise .42s cubic-bezier(.2,.7,.3,1) both}
-    @keyframes rise{from{opacity:0;transform:translateY(10px)}}
+  .rail-note{margin-top:auto;font-family:var(--mono);font-size:.63rem;line-height:1.85;color:var(--faint)}
+  .rail-note b{display:block;color:var(--muted);font-weight:400;letter-spacing:.08em}
 
-    .head{padding:76px 0 34px}
-    .head .tc{display:block;margin-bottom:20px}
-    .head h1{margin:0;font-size:clamp(2.4rem,6.2vw,4.1rem)}
-    .head .lede{max-width:56ch;margin:22px 0 0;font-size:1.06rem;color:var(--muted)}
-    .body{padding-bottom:96px}
+  /* ─── Mobile bar ───────────────────────────────────────────────── */
+  .bar{display:none;position:sticky;top:0;z-index:40;align-items:center;justify-content:space-between;
+    gap:14px;padding:15px 22px;background:rgba(10,15,14,.82);backdrop-filter:blur(10px);border-bottom:1px solid var(--line-soft)}
+  .bar details{position:relative}
+  .bar summary{list-style:none;cursor:pointer;padding:7px 13px;border:1px solid var(--line);
+    font-family:var(--mono);font-size:.62rem;letter-spacing:.18em;text-transform:uppercase}
+  .bar summary::-webkit-details-marker{display:none}
+  .bar details[open] summary{background:var(--mark);color:var(--deep);border-color:var(--mark)}
+  .bar nav{position:absolute;right:0;top:calc(100% + 10px);z-index:50;display:grid;min-width:200px;padding:8px;
+    background:var(--deeper);border:1px solid var(--line);box-shadow:0 24px 60px rgba(0,0,0,.6)}
+  .bar nav button{display:flex;justify-content:space-between;align-items:baseline;gap:16px;padding:11px 12px;
+    border:0;background:none;text-align:left;cursor:pointer;font-family:var(--serif);font-size:1rem}
+  .bar nav button:hover{color:var(--mark)}
 
-    /* ─── Signature: the segment strip ─────────────────────────────────
-       This is the hero, and it is the site's navigation. Each segment is
-       a section; its width is proportional to how many entries that
-       section actually holds, so the strip reads as a chart of the site.
-       Lifted directly from the keep/skip timeline in Quickmini. */
-    .strip-wrap{padding:8px 0 4px}
-    .strip-meta{display:flex;justify-content:space-between;align-items:baseline;gap:16px;margin-bottom:10px}
-    .strip{position:relative;display:flex;gap:3px;height:64px;padding:0;border:0;background:none}
-    /* Width allocation. Every segment starts at a fixed 66px basis — wide
-       enough for the longest label, so none ever clips to "CONTA" — and
-       flex-grow (set inline, per section) shares out only what's left over,
-       in proportion to weight. So width = 66px + leftover x weight/total.
-       That is an affine map from weight to width, which matters: it keeps
-       the order strict and the *differences* exactly proportional, though
-       it compresses the ratios. Do not swap this for `flex:1 1 auto` with
-       a min-width — that bases each segment on its own label width and
-       then clamps the small ones, which collapsed weight 2 and weight 1
-       to an identical 78px. */
-    .seg{position:relative;flex-basis:66px;flex-shrink:0;min-width:0;padding:0;border:0;border-radius:2px;background:var(--skip);cursor:pointer;overflow:hidden;transition:background .22s,transform .22s}
-    /* Labels stay visible at rest — the strip is a readout, so it has to
-       be legible without hovering. Colour flips with the segment state so
-       it contrasts in both schemes. */
-    .seg::after{content:attr(data-label);position:absolute;left:9px;bottom:7px;font-family:var(--mono);font-size:.6rem;letter-spacing:.1em;text-transform:uppercase;color:var(--ink);opacity:.5;transition:opacity .22s,color .22s;white-space:nowrap}
-    .seg:hover{transform:translateY(-3px)}
-    .seg:hover::after{opacity:1}
-    .seg[aria-current=true]{background:var(--accent)}
-    .seg[aria-current=true]::after{color:var(--on-accent);opacity:1}
-    .seg:not([aria-current=true]):hover{background:var(--muted)}
-    .seg:not([aria-current=true]):hover::after{color:var(--on-accent)}
-    /* Playhead — ambient sweep, silenced for reduced motion. */
-    .playhead{position:absolute;top:-6px;bottom:-6px;width:2px;background:var(--ink);pointer-events:none;animation:sweep 14s linear infinite}
-    .playhead::before{content:"";position:absolute;top:-1px;left:-4px;width:10px;height:6px;background:var(--ink);clip-path:polygon(0 0,100% 0,50% 100%)}
-    @keyframes sweep{from{left:0}to{left:100%}}
-    .strip-legend{display:flex;gap:18px;margin-top:12px}
-    .strip-legend span{display:flex;align-items:center;gap:7px}
-    .strip-legend b{width:16px;height:8px;border-radius:1px;background:var(--skip)}
-    .strip-legend span:first-child b{background:var(--accent)}
+  /* ─── Page & panels ────────────────────────────────────────────── */
+  .page{position:relative;z-index:2;margin-left:var(--rail);min-height:100vh}
+  .shell{width:min(100% - 64px,var(--shell));margin-inline:auto}
+  .panel[hidden]{display:none}
 
-    @media (prefers-reduced-motion:reduce){
-      *,*::before,*::after{animation-duration:.001ms!important;animation-iteration-count:1!important;transition-duration:.001ms!important;scroll-behavior:auto!important}
-      .playhead{display:none}
-    }
+  /* Panel entrance — a masked rise, staggered by depth. One coordinated
+     movement rather than several competing ones. */
+  .panel > *{animation:rise .9s var(--ease) both}
+  .panel > *:nth-child(2){animation-delay:.09s}
+  .panel > *:nth-child(3){animation-delay:.16s}
+  @keyframes rise{
+    from{opacity:0;transform:translateY(26px);clip-path:inset(0 0 100% 0)}
+    to{opacity:1;transform:none;clip-path:inset(0 0 -6% 0)}
+  }
 
-    /* ─── Hero ─────────────────────────────────────────────────────── */
-    .hero{padding:96px 0 46px;border-bottom:1px solid var(--line-soft)}
-    .hero h1{margin:18px 0 0;font-size:clamp(2.7rem,7.4vw,5rem)}
-    .hero h1 em{font-style:normal;color:var(--muted)}
-    .hero p{max-width:58ch;margin:26px 0 0;font-size:1.12rem;color:var(--muted)}
-    .hero-actions{display:flex;flex-wrap:wrap;gap:10px;margin-top:34px}
-    .btn{display:inline-flex;align-items:center;gap:9px;padding:11px 19px;border:1px solid var(--ink);background:var(--ink);color:var(--paper);font-family:var(--mono);font-size:.72rem;letter-spacing:.1em;text-transform:uppercase;text-decoration:none;cursor:pointer;transition:.18s}
-    .btn:hover{background:var(--accent);border-color:var(--accent);color:#fff}
-    .btn.ghost{background:none;color:var(--ink);border-color:var(--line)}
-    .btn.ghost:hover{border-color:var(--ink);background:none;color:var(--ink)}
+  /* ─── Hero ─────────────────────────────────────────────────────── */
+  .hero{padding:16vh 0 9vh}
+  .hero .tc{display:block;margin-bottom:34px;opacity:0;animation:fade 1s var(--ease) .15s both}
+  .hero h1{margin:0;font-size:clamp(2.9rem,8.2vw,6.4rem)}
+  /* Each line reveals from behind its own mask, in sequence. */
+  .hero h1 .ln{display:block;overflow:hidden}
+  .hero h1 .ln i{display:block;font-style:normal;transform:translateY(102%);animation:lift 1.25s var(--ease) both}
+  .hero h1 .ln:nth-child(1) i{animation-delay:.20s}
+  .hero h1 .ln:nth-child(2) i{animation-delay:.34s}
+  .hero h1 .ln:nth-child(3) i{animation-delay:.48s}
+  .hero h1 em{font-style:italic;color:var(--mark)}
+  @keyframes lift{from{transform:translateY(102%)}to{transform:none}}
+  @keyframes fade{from{opacity:0}to{opacity:1}}
+  .hero p{max-width:54ch;margin:38px 0 0;font-size:1.09rem;color:var(--muted);opacity:0;animation:fade 1.1s var(--ease) .72s both}
+  .hero-actions{display:flex;flex-wrap:wrap;gap:12px;margin-top:44px;opacity:0;animation:fade 1.1s var(--ease) .88s both}
 
-    /* ─── Content primitives ───────────────────────────────────────── */
-    .split{display:grid;grid-template-columns:minmax(0,220px) minmax(0,1fr);gap:44px;padding:62px 0;border-bottom:1px solid var(--line-soft)}
-    .split:last-child{border-bottom:0}
-    .split h2{margin:8px 0 0;font-size:1.5rem;font-weight:640;letter-spacing:-.025em;line-height:1.2}
-    .prose{max-width:64ch}
-    .prose p{margin:0 0 16px}
-    .prose p:last-child{margin-bottom:0}
-    .prose a{color:var(--accent-ink);text-decoration-color:var(--accent-soft);text-underline-offset:3px}
+  .btn{position:relative;display:inline-flex;align-items:center;gap:10px;padding:13px 24px;
+    border:1px solid var(--line);background:none;color:var(--bone);text-decoration:none;cursor:pointer;
+    font-family:var(--mono);font-size:.66rem;letter-spacing:.2em;text-transform:uppercase;overflow:hidden;
+    transition:color .5s var(--ease),border-color .5s var(--ease)}
+  /* The fill rises like a water line. */
+  .btn::before{content:"";position:absolute;inset:auto 0 0 0;height:0;background:var(--mark);z-index:-1;transition:height .5s var(--ease)}
+  .btn span{position:relative;z-index:1}
+  .btn:hover{border-color:var(--mark);color:var(--deep)}
+  .btn:hover::before{height:100%}
+  .btn.solid{border-color:var(--mark)}
+  .btn.solid::before{height:100%}
+  .btn.solid{color:var(--deep)}
+  .btn.solid:hover::before{height:0}
+  .btn.solid:hover{color:var(--mark)}
 
-    .list{display:grid;gap:0;margin:0;padding:0;list-style:none}
-    .item{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:14px 24px;align-items:baseline;padding:22px 0;border-top:1px solid var(--line-soft)}
-    .item:last-child{border-bottom:1px solid var(--line-soft)}
-    .item h3{margin:0;font-size:1.08rem;font-weight:620;letter-spacing:-.018em}
-    .item h3 a{text-decoration:none}
-    .item h3 a:hover{color:var(--accent-ink)}
-    .item p{grid-column:1/-1;max-width:66ch;margin:8px 0 0;color:var(--muted);font-size:.95rem}
-    .item .meta{display:flex;flex-wrap:wrap;gap:8px;justify-content:flex-end}
-    .item .tags{grid-column:1/-1;display:flex;flex-wrap:wrap;gap:6px;margin-top:12px}
-    .chip{padding:3px 9px;border:1px solid var(--line);border-radius:999px;font-family:var(--mono);font-size:.62rem;letter-spacing:.07em;color:var(--muted)}
-    .chip.live{border-color:var(--accent);color:var(--accent-ink);background:var(--accent-soft)}
-    .links{grid-column:1/-1;display:flex;flex-wrap:wrap;gap:16px;margin-top:14px}
-    .links a{font-family:var(--mono);font-size:.68rem;letter-spacing:.08em;text-transform:uppercase;color:var(--accent-ink);text-decoration:none}
-    .links a:hover{text-decoration:underline;text-underline-offset:4px}
-    .item[hidden]{display:none}
+  /* ─── Hydrograph navigation ────────────────────────────────────────
+     The old segment strip, redrawn as the instrument the subject's own
+     field uses. Height at each station is the number of entries in that
+     section, so it is a real reading of the site, and each station is a
+     link. Same data, domain's own notation. */
+  .gauge{margin:0}
+  .gauge-head{display:flex;justify-content:space-between;align-items:baseline;gap:20px;margin-bottom:18px}
+  .gauge svg{width:100%;height:auto;overflow:visible}
+  .gauge .axis{stroke:var(--line);stroke-width:1}
+  .gauge .area{fill:url(#wash)}
+  .gauge .trace{fill:none;stroke:var(--bone);stroke-width:1.5;stroke-opacity:.55;
+    stroke-linecap:round;stroke-linejoin:round}
+  .gauge .stem{stroke:var(--line);stroke-width:1}
+  .gauge .stn{cursor:pointer}
+  .gauge .dot{fill:var(--deep);stroke:var(--bone);stroke-opacity:.55;stroke-width:1.5;transition:.45s var(--ease)}
+  .gauge .hit{fill:transparent}
+  .gauge .lbl{font-family:var(--mono);font-size:8.4px;letter-spacing:.16em;text-transform:uppercase;
+    fill:var(--faint);transition:fill .45s var(--ease)}
+  .gauge .val{font-family:var(--mono);font-size:8.4px;fill:var(--faint);transition:fill .45s var(--ease)}
+  .gauge .stn:hover .dot{stroke:var(--bone);stroke-opacity:1;r:5}
+  .gauge .stn:hover .lbl,.gauge .stn:hover .val{fill:var(--bone)}
+  .gauge .stn[aria-current=true] .dot{fill:var(--mark);stroke:var(--mark);r:5.5}
+  .gauge .stn[aria-current=true] .lbl,.gauge .stn[aria-current=true] .val{fill:var(--mark)}
 
-    .search{display:flex;align-items:center;gap:10px;margin:0 0 6px;padding:11px 14px;border:1px solid var(--line);background:var(--card)}
-    .search input{flex:1;min-width:0;border:0;background:none;outline:none;font-size:.95rem}
-    .search input::placeholder{color:var(--faint)}
-    .search .tag{white-space:nowrap}
-    .empty{padding:34px 0;color:var(--muted);font-family:var(--mono);font-size:.8rem}
-    .empty[hidden]{display:none}
+  /* ─── Content ──────────────────────────────────────────────────── */
+  .head{padding:14vh 0 7vh}
+  .head .tc{display:block;margin-bottom:30px}
+  .head h1{margin:0;font-size:clamp(2.5rem,6.6vw,4.8rem)}
+  .head .lede{max-width:52ch;margin:30px 0 0;font-size:1.05rem;color:var(--muted)}
+  .body{padding-bottom:16vh}
 
-    .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:14px;margin-top:8px}
-    .cell{padding:20px;border:1px solid var(--line);background:var(--card)}
-    .cell b{display:block;font-size:1.7rem;font-weight:640;letter-spacing:-.03em}
-    .cell span{display:block;margin-top:6px;color:var(--muted);font-size:.85rem}
-    .note{padding:16px 18px;border-left:2px solid var(--accent);background:var(--accent-soft);font-size:.9rem}
-    .note b{font-family:var(--mono);font-size:.66rem;letter-spacing:.12em;text-transform:uppercase;display:block;margin-bottom:6px;color:var(--accent-ink)}
+  .split{display:grid;grid-template-columns:minmax(0,190px) minmax(0,1fr);gap:52px;
+    padding:64px 0;border-top:1px solid var(--line-soft)}
+  .split:first-child{border-top:0}
+  .split h2{margin:10px 0 0;font-family:var(--serif);font-weight:400;font-size:1.75rem;letter-spacing:-.018em;line-height:1.14}
+  .prose{max-width:62ch}
+  .prose p{margin:0 0 17px}
+  .prose p:last-child{margin-bottom:0}
+  .prose strong{font-weight:600;color:var(--bone)}
+  .prose a{color:var(--mark);text-decoration:none;border-bottom:1px solid rgba(232,196,106,.35)}
+  .prose a:hover{border-bottom-color:var(--mark)}
 
-    .contact-links{display:grid;gap:0;margin-top:8px}
-    .contact-links a{display:flex;justify-content:space-between;align-items:baseline;gap:20px;padding:18px 0;border-top:1px solid var(--line-soft);text-decoration:none;transition:padding .2s}
-    .contact-links a:last-child{border-bottom:1px solid var(--line-soft)}
-    .contact-links a:hover{padding-left:10px;color:var(--accent-ink)}
-    .contact-links strong{font-weight:600;letter-spacing:-.015em}
-    .contact-links span{font-family:var(--mono);font-size:.72rem;color:var(--muted)}
+  .list{display:grid;margin:0;padding:0;list-style:none}
+  .item{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:14px 28px;align-items:baseline;
+    padding:30px 0;border-top:1px solid var(--line-soft);transition:padding-left .55s var(--ease)}
+  .item:first-child{border-top:0}
+  .item:hover{padding-left:14px}
+  .item h3{margin:0;font-family:var(--serif);font-weight:400;font-size:1.42rem;letter-spacing:-.012em}
+  .item h3 a{text-decoration:none;transition:color .4s var(--ease)}
+  .item h3 a:hover{color:var(--mark)}
+  .item p{grid-column:1/-1;max-width:64ch;margin:12px 0 0;color:var(--muted);font-size:.95rem}
+  .item .meta{display:flex;flex-wrap:wrap;gap:8px;justify-content:flex-end}
+  .item .tags{grid-column:1/-1;display:flex;flex-wrap:wrap;gap:7px;margin-top:16px}
+  .item[hidden]{display:none}
 
-    /* ─── Responsive ───────────────────────────────────────────────── */
-    @media (max-width:900px){
-      .rail{display:none}
-      .bar{display:flex}
-      .page{margin-left:0}
-      .shell{width:min(100% - 40px,var(--shell))}
-      .split{grid-template-columns:1fr;gap:18px;padding:44px 0}
-      .hero{padding:52px 0 38px}
-      .head{padding:46px 0 26px}
-      /* Scroll the wrapper, not the strip. Giving the strip itself a
-         min-width is what makes the widths keep meaning something: squeezed
-         into 375px there is almost no leftover space, so every segment sits
-         at its basis and the encoding flattens to a row of equal blocks. */
-      .strip-scroll{overflow-x:auto;overflow-y:hidden;padding-block:6px;scrollbar-width:none}
-      .strip-scroll::-webkit-scrollbar{display:none}
-      .strip{height:52px;min-width:520px}
-      .seg{flex-basis:58px}
-      .item{grid-template-columns:1fr}
-      .item .meta{justify-content:flex-start}
-    }
+  .chip{padding:3px 11px;border:1px solid var(--line);border-radius:999px;
+    font-family:var(--mono);font-size:.58rem;letter-spacing:.14em;text-transform:uppercase;color:var(--faint)}
+  .chip.live{border-color:rgba(232,196,106,.5);color:var(--mark)}
+  .links{grid-column:1/-1;display:flex;flex-wrap:wrap;gap:22px;margin-top:18px}
+  .links a{font-family:var(--mono);font-size:.63rem;letter-spacing:.18em;text-transform:uppercase;
+    color:var(--mark);text-decoration:none;border-bottom:1px solid transparent;transition:border-color .4s var(--ease)}
+  .links a:hover{border-bottom-color:var(--mark)}
 
-    /* ─── Print ────────────────────────────────────────────────────── */
-    @media print{
-      .rail,.bar,.strip-wrap,.hero-actions,.search{display:none}
-      .page{margin:0}
-      .panel[hidden]{display:block!important}
-      body{background:#fff;color:#000}
-    }
+  .search{display:flex;align-items:center;gap:14px;margin:0;padding:16px 0;border-bottom:1px solid var(--line-soft)}
+  .search input{flex:1;min-width:0;border:0;background:none;outline:none;
+    font-family:var(--serif);font-size:1.1rem;color:var(--bone)}
+  .search input::placeholder{color:var(--faint)}
+  .search[hidden]{display:none}
+  .empty{padding:44px 0;color:var(--faint);font-family:var(--mono);font-size:.72rem;letter-spacing:.2em;text-transform:uppercase}
+  .empty[hidden]{display:none}
+
+  .contact-links{display:grid}
+  .contact-links a{display:flex;justify-content:space-between;align-items:baseline;gap:24px;
+    padding:26px 0;border-top:1px solid var(--line-soft);text-decoration:none;transition:padding-left .55s var(--ease)}
+  .contact-links a:first-child{border-top:0}
+  .contact-links a:hover{padding-left:14px}
+  .contact-links strong{font-family:var(--serif);font-weight:400;font-size:1.42rem}
+  .contact-links a:hover strong{color:var(--mark)}
+  .contact-links span{font-family:var(--mono);font-size:.66rem;color:var(--faint);letter-spacing:.08em}
+
+  /* ─── Responsive ───────────────────────────────────────────────── */
+  @media (max-width:920px){
+    .rail{display:none}
+    .bar{display:flex}
+    .page{margin-left:0}
+    .shell{width:min(100% - 40px,var(--shell))}
+    .split{grid-template-columns:1fr;gap:20px;padding:46px 0}
+    .hero{padding:11vh 0 7vh}
+    .head{padding:9vh 0 5vh}
+    .item{grid-template-columns:1fr}
+    .item .meta{justify-content:flex-start}
+    .gauge-scroll{overflow-x:auto;scrollbar-width:none}
+    .gauge-scroll::-webkit-scrollbar{display:none}
+    .gauge svg{min-width:540px}
+  }
+
+  /* ─── Reduced motion ───────────────────────────────────────────────
+     Everything still arrives, nothing moves. The flow field renders a
+     single static frame instead of animating (handled in script). */
+  @media (prefers-reduced-motion:reduce){
+    *,*::before,*::after{animation-duration:.001ms!important;animation-iteration-count:1!important;
+      transition-duration:.001ms!important;scroll-behavior:auto!important}
+    .hero h1 .ln i{transform:none}
+    .panel > *{opacity:1;transform:none;clip-path:none}
+  }
+
+  @media print{
+    #flow,.veil,.rail,.bar,.gauge,.search{display:none}
+    .page{margin:0}
+    .panel[hidden]{display:block!important}
+    body{background:#fff;color:#000}
+    .display,h1,h2,h3{color:#000}
+  }
   </style>
 </head>
 <body>
   <a class="skip" href="#content">Skip to content</a>
+  <canvas id="flow" aria-hidden="true"></canvas>
+  <div class="veil" aria-hidden="true"></div>
 
   <aside class="rail" aria-label="Sections">
-    <a class="mark" href="#home" data-go="home"><b>Alan Ng</b><span>alanntl</span></a>
+    <a class="mark-a" href="#home" data-go="home"><b>Alan Ng</b><span>Researcher · Sydney</span></a>
     <nav class="nav" role="tablist" id="rail-nav"></nav>
-    <div class="rail-note" style="margin-top:auto">
-      <b>Everything runs locally.</b>
-      No uploads, no accounts, no build step.
+    <div class="rail-note">
+      <b>Sydney, Australia</b>
+      Research Fellow<br>Western Sydney University
     </div>
   </aside>
 
   <header class="bar">
-    <a class="mark" href="#home" data-go="home"><b>Alan Ng</b><span>alanntl</span></a>
-    <details id="bar-menu"><summary>Menu</summary><nav id="bar-nav"></nav></details>
+    <a class="mark-a" href="#home" data-go="home"><b>Alan Ng</b></a>
+    <details id="bar-menu"><summary>Index</summary><nav id="bar-nav"></nav></details>
   </header>
 
   <main class="page" id="content">
 
-    <!-- ── HOME ─────────────────────────────────────────────────────── -->
+    <!-- ── HOME ────────────────────────────────────────────────────── -->
     <section class="panel" id="panel-home" data-panel="home">
       <div class="hero"><div class="shell">
-        <p class="tc">00:00 · INDEX</p>
-        <h1 class="display">Tools that run<br>on your machine.<br><em>Not on mine.</em></h1>
-        <p>I build browser-native software that does its heavy work in your own tab — video encoding, mathematics, knowledge graphs — and I research reinforcement learning for hard combinatorial problems. Nothing gets uploaded, and nothing runs on somebody else's server.</p>
+        <p class="tc">Alan Ng — Sydney, Australia</p>
+        <h1 class="display">
+          <span class="ln"><i>Different fields.</i></span>
+          <span class="ln"><i>The same question:</i></span>
+          <span class="ln"><i><em>can you trust it?</em></i></span>
+        </h1>
+        <p>I'm a Research Fellow at Western Sydney University, applying AI and data analytics to water science. Before that: mechanical engineering, software, automation, energy and fintech. What carries across is an interest in tools people can actually check — and in helping them understand complex systems well enough to make better decisions.</p>
         <div class="hero-actions">
-          <a class="btn" href="#projects" data-go="projects">See the projects</a>
-          <a class="btn ghost" href="https://alanntl.github.io/quickmini/" target="_blank" rel="noreferrer">Try Quickmini ↗</a>
+          <a class="btn solid" href="#research" data-go="research"><span>The research</span></a>
+          <a class="btn" href="#projects" data-go="projects"><span>Things I've built</span></a>
         </div>
       </div></div>
 
       <div class="body"><div class="shell">
         <div class="split">
-          <div><p class="tag">The strip</p></div>
+          <div><p class="tag">Stage record</p></div>
           <div>
-            <div class="strip-wrap">
-              <div class="strip-meta">
-                <p class="tag" style="margin:0">Sections, by weight</p>
-                <p class="tag" style="margin:0" id="strip-count"></p>
+            <figure class="gauge">
+              <div class="gauge-head">
+                <p class="tag" style="margin:0">Depth of section</p>
+                <p class="tag" style="margin:0" id="gauge-total"></p>
               </div>
-              <div class="strip-scroll"><div class="strip" id="strip" role="group" aria-label="Jump to a section"></div></div>
-              <div class="strip-legend">
-                <span><b></b><span class="tag">Current</span></span>
-                <span><b></b><span class="tag">Jump to</span></span>
-              </div>
-            </div>
-            <p class="prose" style="margin-top:22px;color:var(--muted)">Each block is a section of this site, sized by how much is in it. It is the same keep-and-skip timeline my video tools use — so the navigation here is the interface I keep building elsewhere. Click a block to move.</p>
+              <div class="gauge-scroll"><div id="gauge"></div></div>
+            </figure>
+            <p class="prose" style="margin-top:26px;color:var(--muted)">A hydrograph plots how high a river stands at a gauging station over time. This one plots how much sits behind each part of this site. Every station is a link — pick one and the page moves there.</p>
           </div>
         </div>
 
         <div class="split">
           <div><p class="tag">Position</p><h2 class="display">What I'm doing now.</h2></div>
           <div class="prose">
-            <div class="note"><b>Fill this in</b>Replace this paragraph with your current role, affiliation and city. It is the one thing a visitor looks for first, and it's the only claim on this page I couldn't source from your own repositories.</div>
-            <p style="margin-top:18px">Two threads run through the work: software that stays on the user's device, and learning systems that find the cases where an algorithm falls over.</p>
+            <p><strong>Research Fellow, Western Sydney University.</strong> Based in Sydney, Australia, applying AI and data analytics to water science — the kind of problem where the modelling only matters if the people who know the catchment can interrogate the result.</p>
+            <p>Alongside that I keep building small tools: LLM agents, cloud systems, mathematical modelling, and browser-native software that does its work on your own machine rather than someone else's server.</p>
           </div>
         </div>
       </div></div>
     </section>
 
-    <!-- ── WORK ─────────────────────────────────────────────────────── -->
+    <!-- ── WORK ────────────────────────────────────────────────────── -->
     <section class="panel" id="panel-work" data-panel="work" hidden>
       <div class="head"><div class="shell">
-        <p class="tc">00:01 · WORK</p>
-        <h1 class="display">How I build.</h1>
-        <p class="lede">Four rules I keep arriving back at, each one paid for by something that went wrong first.</p>
+        <p class="tc">01 — Background</p>
+        <h1 class="display">Background.</h1>
+        <p class="lede">A researcher with interests spanning engineering, data science, finance and software systems — and the working rules that came out of moving between them.</p>
       </div></div>
       <div class="body"><div class="shell" id="work-body"></div></div>
     </section>
 
-    <!-- ── PROJECTS ─────────────────────────────────────────────────── -->
+    <!-- ── PROJECTS ────────────────────────────────────────────────── -->
     <section class="panel" id="panel-projects" data-panel="projects" hidden>
       <div class="head"><div class="shell">
-        <p class="tc">00:02 · PROJECTS</p>
-        <h1 class="display">Things I've shipped.</h1>
+        <p class="tc">02 — Projects</p>
+        <h1 class="display">Things I've built.</h1>
         <p class="lede">Mostly small, mostly browser-native, mostly built because the existing tool wanted my files on its server.</p>
       </div></div>
       <div class="body"><div class="shell">
@@ -312,14 +356,14 @@
           <input id="projects-search" type="search" placeholder="ffmpeg, react, agents…" aria-label="Filter projects">
         </label>
         <ul class="list" id="projects-list"></ul>
-        <p class="empty" hidden id="projects-empty">No project matches that.</p>
+        <p class="empty" hidden id="projects-empty">No project matches that</p>
       </div></div>
     </section>
 
-    <!-- ── WRITING ──────────────────────────────────────────────────── -->
+    <!-- ── WRITING ─────────────────────────────────────────────────── -->
     <section class="panel" id="panel-writing" data-panel="writing" hidden>
       <div class="head"><div class="shell">
-        <p class="tc">00:03 · WRITING</p>
+        <p class="tc">03 — Writing</p>
         <h1 class="display">Notes.</h1>
         <p class="lede">Write-ups of things that took longer than they should have, kept mainly so I don't solve them twice.</p>
       </div></div>
@@ -329,35 +373,35 @@
           <input id="writing-search" type="search" placeholder="Search notes…" aria-label="Filter notes">
         </label>
         <ul class="list" id="writing-list"></ul>
-        <p class="empty" hidden id="writing-empty">Nothing matches that.</p>
+        <p class="empty" hidden id="writing-empty">Nothing matches that</p>
       </div></div>
     </section>
 
-    <!-- ── RESEARCH ─────────────────────────────────────────────────── -->
+    <!-- ── RESEARCH ────────────────────────────────────────────────── -->
     <section class="panel" id="panel-research" data-panel="research" hidden>
       <div class="head"><div class="shell">
-        <p class="tc">00:04 · RESEARCH</p>
+        <p class="tc">04 — Research</p>
         <h1 class="display">Research.</h1>
-        <p class="lede">Reinforcement learning applied to problems where the interesting question is which inputs break the solver.</p>
+        <p class="lede">Water science at Western Sydney University, and reinforcement learning applied to problems where the interesting question is which inputs break the solver.</p>
       </div></div>
       <div class="body"><div class="shell">
         <ul class="list" id="research-list"></ul>
       </div></div>
     </section>
 
-    <!-- ── CONTACT ──────────────────────────────────────────────────── -->
+    <!-- ── CONTACT ─────────────────────────────────────────────────── -->
     <section class="panel" id="panel-contact" data-panel="contact" hidden>
       <div class="head"><div class="shell">
-        <p class="tc">00:05 · CONTACT</p>
+        <p class="tc">05 — Contact</p>
         <h1 class="display">Get in touch.</h1>
-        <p class="lede">Happy to hear about collaborations, research, or a bug in one of the tools.</p>
+        <p class="lede">Happy to hear about research collaborations, or about a bug in one of the tools.</p>
       </div></div>
       <div class="body"><div class="shell">
-        <div class="split" style="border-bottom:0;padding-top:14px">
+        <div class="split" style="border-top:0;padding-top:8px">
           <div><p class="tag">Channels</p></div>
           <div>
             <div class="contact-links" id="contact-links"></div>
-            <div class="note" style="margin-top:26px"><b>Fill this in</b>Swap the email below for the address you actually want on a public page, and add or remove links. I've left only the ones I could verify from your repositories.</div>
+            <p class="prose" style="margin-top:34px;color:var(--muted)">Based in Sydney, Australia.</p>
           </div>
         </div>
       </div></div>
@@ -368,27 +412,22 @@
   <script>
   /* ═══════════════════════════════════════════════════════════════════
      CONTENT
-     Everything the site says lives in these arrays. To add a project or
-     a note, add an object — the markup is generated from it. This is the
-     one deliberate departure from the AIWC build, where content is
-     hardcoded into 9,000 lines of HTML because it was scraped out of
-     WordPress. You maintain this one by hand, so the data comes first.
+     Everything the site says lives in these arrays. To add an entry, add
+     an object — the markup is generated from it.
      ═══════════════════════════════════════════════════════════════════ */
 
   const SECTIONS = [
-    {id:"home",     label:"Home",     tc:"00:00"},
-    {id:"work",     label:"Work",     tc:"00:01"},
-    {id:"projects", label:"Projects", tc:"00:02"},
-    {id:"writing",  label:"Writing",  tc:"00:03"},
-    {id:"research", label:"Research", tc:"00:04"},
-    {id:"contact",  label:"Contact",  tc:"00:05"},
+    {id:"home",     label:"Index",      tc:"00"},
+    {id:"work",     label:"Background", tc:"01"},
+    {id:"projects", label:"Projects",   tc:"02"},
+    {id:"writing",  label:"Writing",    tc:"03"},
+    {id:"research", label:"Research",   tc:"04"},
+    {id:"contact",  label:"Contact",    tc:"05"},
   ];
 
   const PROJECTS = [
     {
-      name:"Quickmini",
-      year:"2026",
-      status:"live",
+      name:"Quickmini", year:"2026", status:"live",
       blurb:"Drop in a video, choose how hard to compress it, optionally cut sections out, export. The whole encode runs in your tab through ffmpeg.wasm — the file never leaves your machine. Trimming and compressing happen in a single ffmpeg pass, and cut footage is never decoded, which took an 11 MB export from 25s down to 5.8s.",
       tags:["ffmpeg.wasm","Web Workers","Vanilla JS","AGPL-3.0"],
       links:[
@@ -397,117 +436,92 @@
       ],
     },
     {
-      name:"Cutaway",
-      year:"2026",
-      status:"archived",
+      name:"Cutaway", year:"2026", status:"archived",
       blurb:"The first pass at the same problem: mark in and out points on a timeline, keep several sections, export the joined result. Quickmini grew out of it once it became clear that compressing an untouched video was the common case, not trimming.",
-      tags:["ffmpeg.wasm","Vanilla JS"],
-      links:[],
+      tags:["ffmpeg.wasm","Vanilla JS"], links:[],
     },
     {
-      name:"DivideNConquer",
-      year:"2026",
-      status:"active",
+      name:"DivideNConquer", year:"2026", status:"active",
       blurb:"Turns a prompt — an equation, a theorem, a “how does X work” — into an interactive hierarchical knowledge graph you can expand, rearrange and export. KaTeX renders the mathematics fully offline with MathML for screen readers, so it works with no network at all.",
-      tags:["React Flow","KaTeX","TypeScript"],
-      links:[],
+      tags:["React Flow","KaTeX","TypeScript"], links:[],
     },
     {
-      name:"loop-runner",
-      year:"2026",
-      status:"active",
+      name:"loop-runner", year:"2026", status:"active",
       blurb:"An agent-agnostic, human-in-the-loop engineering runner. Point it at a git repository: it drafts a plan, you approve it, it implements the change with whichever agent you choose, opens a pull request — and stops. Nothing merges without you.",
-      tags:["Agents","Git","CLI"],
-      links:[],
+      tags:["Agents","Git","CLI"], links:[],
     },
     {
-      name:"Traddy",
-      year:"2026",
-      status:"active",
+      name:"Traddy", year:"2026", status:"active",
       blurb:"A portfolio and trading interface for Interactive Brokers. FastAPI and ib_async talk to IB Gateway; the front end is Vite, React, TypeScript and Tailwind.",
-      tags:["FastAPI","React","TypeScript","ib_async"],
-      links:[],
+      tags:["FastAPI","React","TypeScript","ib_async"], links:[],
     },
     {
-      name:"AIWC website",
-      year:"2026",
-      status:"live",
+      name:"AIWC website", year:"2026", status:"live",
       blurb:"Rebuilt the Australia India Water Centre's site as a single self-contained HTML file — no framework, no build step, no CDN — served straight from a GitHub Pages branch. Eight sections, a client-side search over every profile, and a full local copy of the original media.",
       tags:["Static HTML","GitHub Pages","No build"],
-      links:[
-        {label:"Source", href:"https://github.com/marvi-groundwater/aiwc"},
-      ],
+      links:[{label:"Source", href:"https://github.com/marvi-groundwater/aiwc"}],
     },
   ];
 
-  const WRITING = [
-    {
-      name:"TODO — replace with a real note",
-      year:"2026",
-      status:"draft",
-      blurb:"This panel renders from the WRITING array in this file. Add an object with name, year, status, blurb, tags and links to publish a note. The two entries here are scaffolding — I had no verified published writing to point at, so I left placeholders rather than invent titles.",
-      tags:["placeholder"],
-      links:[],
-    },
-    {
-      name:"TODO — a second one, to show the list",
-      year:"2026",
-      status:"draft",
-      blurb:"Good candidates from your own machine: the ffmpeg.wasm worker investigation (why the CDN build hangs forever with no error, and why the ESM core is required), or why stream copy was rejected after a 7s trim silently exported 18.8s.",
-      tags:["placeholder"],
-      links:[],
-    },
-  ];
+  /* Empty on purpose — nothing published yet, and an honest empty state
+     beats invented titles. Add an object here and the panel fills itself. */
+  const WRITING = [];
 
   const RESEARCH = [
     {
-      name:"Learning hard graph instances for Maximum Independent Set",
-      year:"Ongoing",
-      status:"research",
+      name:"AI and data analytics for water science", year:"Now", status:"current",
+      blurb:"My work as a Research Fellow at Western Sydney University. Water is a domain where a model is only useful if the people who know the catchment can interrogate it — which makes it a good test of whether an AI tool is genuinely trustworthy or merely confident.",
+      tags:["AI","Data analytics","Water science","Western Sydney University"], links:[],
+    },
+    {
+      name:"Australia India Water Centre", year:"Ongoing", status:"applied",
+      blurb:"A bilateral centre hosted at Western Sydney University, connecting research, education and training on water across Australia and India. I rebuilt the Centre's website as a single self-contained page with no build step or CDN.",
+      tags:["Water","Groundwater","Bilateral research"],
+      links:[{label:"Centre site", href:"https://aiwc.org.au/"}],
+    },
+    {
+      name:"Learning hard graph instances for Maximum Independent Set", year:"Ongoing", status:"research",
       blurb:"Deep reinforcement learning with GraphSAGE to automatically discover graph patterns that produce hard instances for Maximum Independent Set solvers. The useful output is not a better solver but a generator of the inputs that make existing ones struggle.",
-      tags:["Deep RL","GraphSAGE","Combinatorial optimisation"],
-      links:[],
+      tags:["Deep RL","GraphSAGE","Combinatorial optimisation"], links:[],
     },
     {
-      name:"aSwam — adaptive firefighting drone swarm",
-      year:"Ongoing",
-      status:"research",
+      name:"aSwam — adaptive firefighting drone swarm", year:"Ongoing", status:"research",
       blurb:"A reinforcement learning model for a drone swarm that coordinates to fight spreading fires, where the policy has to adapt as the fire front changes rather than follow a fixed assignment.",
-      tags:["Multi-agent RL","Simulation"],
-      links:[],
+      tags:["Multi-agent RL","Simulation"], links:[],
     },
-    {
-      name:"Australia India Water Centre",
-      year:"Ongoing",
-      status:"applied",
-      blurb:"TODO — describe your actual involvement here. I know you rebuilt the Centre's web platform, but not what your research role is, so I have not guessed at one.",
-      tags:["Water","Groundwater"],
-      links:[],
-    },
+  ];
+
+  /* Fields worked in, current first. Employers and dates for the earlier
+     roles aren't here — see the TODO note in the README. */
+  const BACKGROUND = [
+    {field:"Water science", when:"Now", current:true,
+     blurb:"Research Fellow at Western Sydney University, applying AI and data analytics to water science. Sydney, Australia."},
+    {field:"Software systems", when:"Throughout",
+     blurb:"LLM agents, cloud systems and browser-native tools. Most of the Projects page comes from here."},
+    {field:"Fintech", when:"Earlier",
+     blurb:"Financial systems and market data — the origin of Traddy, a portfolio and trading interface for Interactive Brokers."},
+    {field:"Energy & automation", when:"Earlier",
+     blurb:"Industrial and energy systems, where a model being wrong has physical consequences rather than merely inconvenient ones."},
+    {field:"Mechanical engineering", when:"Where it started",
+     blurb:"The first discipline, and the reason I tend to want a model I can take apart and check rather than one I have to take on faith."},
   ];
 
   const PRINCIPLES = [
-    {
-      name:"Do the work once",
-      blurb:"Quickmini trims and compresses in a single ffmpeg pass. Two passes would decode and re-encode the video twice and lose quality to a second round of compression, for no gain. Most speed comes from removing a step, not tuning one.",
-    },
-    {
-      name:"Silently wrong beats slow — never",
-      blurb:"Stream copy made trims about 20× faster, but cuts can only land on keyframes: a requested 7.0s trim exported 18.8s with no error. It was removed. An output that is quietly incorrect costs far more than one that takes 25 seconds.",
-    },
-    {
-      name:"Write down what didn't work",
-      blurb:"The multithreaded ffmpeg core deadlocks mid-encode; VP9 crashes the wasm heap where VP8 survives. Both are recorded in the source with what was observed, so nobody — including me — spends another afternoon rediscovering them.",
-    },
-    {
-      name:"Prove it against the real thing",
-      blurb:"A page that loads proves nothing. Quickmini's export was 100% broken while the interface looked perfect, because the failure only appeared once Export was actually clicked. Verification happens against the deployed site, not localhost.",
-    },
+    {name:"Do the work once",
+     blurb:"Quickmini trims and compresses in a single ffmpeg pass. Two passes would decode and re-encode the video twice and lose quality to a second round of compression, for no gain. Most speed comes from removing a step, not tuning one."},
+    {name:"Silently wrong beats slow — never",
+     blurb:"Stream copy made trims about 20× faster, but cuts can only land on keyframes: a requested 7.0s trim exported 18.8s with no error. It was removed. An output that is quietly incorrect costs far more than one that takes 25 seconds."},
+    {name:"Write down what didn't work",
+     blurb:"The multithreaded ffmpeg core deadlocks mid-encode; VP9 crashes the wasm heap where VP8 survives. Both are recorded in the source with what was observed, so nobody — including me — spends another afternoon rediscovering them."},
+    {name:"Prove it against the real thing",
+     blurb:"A page that loads proves nothing. Quickmini's export was 100% broken while the interface looked perfect, because the failure only appeared once Export was actually clicked. Verification happens against the deployed site, not localhost."},
   ];
 
+  /* Only channels I could verify. Add an email here when you've decided
+     which address you want on a public page. */
   const CONTACT = [
+    {label:"LinkedIn", detail:"linkedin.com/in/alan-n-182ab9210", href:"https://www.linkedin.com/in/alan-n-182ab9210"},
     {label:"GitHub", detail:"github.com/alanntl", href:"https://github.com/alanntl"},
-    {label:"Email", detail:"TODO — your public address", href:"mailto:you@example.com"},
   ];
 
   /* ═══════════════════════════════════════════════════════════════════
@@ -515,16 +529,13 @@
      ═══════════════════════════════════════════════════════════════════ */
 
   /**
-   * Decide whether one entry should stay visible for a given query.
-   *
-   * @param {string} haystack  Lowercased searchable text for the entry —
-   *                           its name, blurb and tags joined together.
+   * Decide whether one entry stays visible for a given query.
+   * @param {string} haystack  Lowercased name + blurb + tags for the entry.
    * @param {string} query     Lowercased, trimmed text the user typed.
    * @returns {boolean}        true to keep the entry visible.
    *
-   * TODO(alan): implement this — see the note in the chat for the
-   * trade-offs. Until then it falls back to plain substring matching,
-   * which is what the AIWC site does.
+   * TODO(alan): implement this. Plain substring is why "git agents" finds
+   * nothing while "agents git" works. See the note in chat for the options.
    */
   function matchesQuery(haystack, query){
     return haystack.includes(query);
@@ -534,12 +545,8 @@
      RENDERING
      ═══════════════════════════════════════════════════════════════════ */
 
-  const esc = value => String(value).replace(/[&<>"]/g, ch =>
-    ({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;"}[ch]));
-
-  /** Everything an entry can be matched on, flattened once at render time. */
-  const searchText = entry =>
-    [entry.name, entry.blurb, ...(entry.tags||[])].join(" ").toLowerCase();
+  const esc = v => String(v).replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;"}[c]));
+  const searchText = e => [e.name, e.blurb, ...(e.tags||[])].join(" ").toLowerCase();
 
   function entryHTML(entry){
     const title = entry.links?.[0]
@@ -551,7 +558,7 @@
     return `<li class="item" data-search="${esc(searchText(entry))}">
       <h3>${title}</h3>
       <div class="meta">
-        <span class="chip${entry.status === "live" ? " live" : ""}">${esc(entry.status)}</span>
+        <span class="chip${entry.status === "live" || entry.status === "current" ? " live" : ""}">${esc(entry.status)}</span>
         <span class="chip">${esc(entry.year)}</span>
       </div>
       <p>${esc(entry.blurb)}</p>
@@ -567,82 +574,149 @@
   renderList("writing-list", WRITING);
   renderList("research-list", RESEARCH);
 
-  document.getElementById("work-body").innerHTML = PRINCIPLES.map((p, i) => `
+  /* A section with no entries shows its empty state immediately, rather
+     than only after a search misses. */
+  if(!WRITING.length){
+    const empty = document.getElementById("writing-empty");
+    empty.textContent = "Nothing published yet";
+    empty.hidden = false;
+    document.getElementById("writing-search").closest(".search").hidden = true;
+  }
+
+  document.getElementById("work-body").innerHTML = `
+    <div class="split">
+      <div><p class="tag">Fields</p><h2 class="display">Where the work has been.</h2></div>
+      <div><ul class="list">${BACKGROUND.map(b => `
+        <li class="item">
+          <h3>${esc(b.field)}</h3>
+          <div class="meta"><span class="chip${b.current ? " live" : ""}">${esc(b.when)}</span></div>
+          <p>${esc(b.blurb)}</p>
+        </li>`).join("")}</ul></div>
+    </div>
+    ${PRINCIPLES.map((p, i) => `
     <div class="split">
       <div><p class="tag">Rule ${String(i + 1).padStart(2, "0")}</p><h2 class="display">${esc(p.name)}</h2></div>
       <div class="prose"><p>${esc(p.blurb)}</p></div>
-    </div>`).join("");
+    </div>`).join("")}`;
 
   document.getElementById("contact-links").innerHTML = CONTACT.map(c => `
     <a href="${esc(c.href)}"${c.href.startsWith("http") ? ' target="_blank" rel="noreferrer"' : ""}>
       <strong>${esc(c.label)}</strong><span>${esc(c.detail)}</span>
     </a>`).join("");
 
-  /* ─── Navigation, built from SECTIONS so the rail, the mobile menu and
-         the strip can never drift out of sync with each other. ───────── */
-
+  /* Nav is generated from SECTIONS, so the rail, the mobile menu and the
+     hydrograph cannot drift out of sync with each other. */
   document.getElementById("rail-nav").innerHTML = SECTIONS.map(s =>
     `<button type="button" role="tab" data-tab="${s.id}" aria-selected="${s.id === "home"}">
-      <i>${s.tc}</i><span>${s.label}</span>
-    </button>`).join("");
+      <i>${s.tc}</i><span>${s.label}</span></button>`).join("");
 
   document.getElementById("bar-nav").innerHTML = SECTIONS.map(s =>
     `<button type="button" data-tab="${s.id}">${s.label}<span class="tag">${s.tc}</span></button>`).join("");
 
-  /* The strip. Segment width is proportional to how many entries the
-     section holds, so it reads as a chart of the site rather than a
-     row of equal blocks. Home and Contact have no list, so they get a
-     floor of 1 to stay clickable. */
-  const WEIGHTS = {
-    home: 1, work: PRINCIPLES.length, projects: PROJECTS.length,
-    writing: WRITING.length, research: RESEARCH.length, contact: 1,
-  };
-  const totalWeight = Object.values(WEIGHTS).reduce((a, b) => a + b, 0);
+  /* ═══════════════════════════════════════════════════════════════════
+     THE HYDROGRAPH
+     Stage height at each station = entries in that section. Math.max(1,…)
+     keeps an empty section on the chart and clickable.
+     ═══════════════════════════════════════════════════════════════════ */
 
-  document.getElementById("strip").innerHTML = SECTIONS.map(s =>
-    `<button type="button" class="seg" data-tab="${s.id}" data-label="${s.label}"
-       style="flex-grow:${WEIGHTS[s.id]}" aria-current="${s.id === "home"}">
-      <span class="tag" style="position:absolute;left:-9999px">${s.label}</span>
-    </button>`).join("") + `<span class="playhead" aria-hidden="true"></span>`;
+  const WEIGHTS = Object.fromEntries(Object.entries({
+    home: 1, work: BACKGROUND.length + PRINCIPLES.length, projects: PROJECTS.length,
+    writing: WRITING.length, research: RESEARCH.length, contact: CONTACT.length,
+  }).map(([k, v]) => [k, Math.max(1, v)]));
 
-  document.getElementById("strip-count").textContent = `${totalWeight} entries`;
+  (function drawGauge(){
+    const W = 760, H = 168, padX = 26, padTop = 16, base = H - 42;
+    const peak = Math.max(...Object.values(WEIGHTS));
+    const step = (W - padX * 2) / (SECTIONS.length - 1);
+    const pts = SECTIONS.map((s, i) => ({
+      s, x: padX + i * step,
+      y: base - (WEIGHTS[s.id] / peak) * (base - padTop),
+    }));
+
+    /* Catmull-Rom through the stations, converted to cubic béziers — a
+       river trace bends, it does not turn corners. */
+    const curve = p => p.map((pt, i) => {
+      if(!i) return `M${pt.x},${pt.y}`;
+      const p0 = p[i - 2] || p[i - 1], p1 = p[i - 1], p3 = p[i + 1] || pt;
+      const c1x = p1.x + (pt.x - p0.x) / 6, c1y = p1.y + (pt.y - p0.y) / 6;
+      const c2x = pt.x - (p3.x - p1.x) / 6, c2y = pt.y - (p3.y - p1.y) / 6;
+      return `C${c1x},${c1y} ${c2x},${c2y} ${pt.x},${pt.y}`;
+    }).join(" ");
+
+    const d = curve(pts);
+    document.getElementById("gauge").innerHTML = `
+      <svg viewBox="0 0 ${W} ${H}" role="group" aria-label="Site sections by depth — select one to navigate">
+        <defs>
+          <linearGradient id="wash" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stop-color="#ece5d8" stop-opacity=".13"/>
+            <stop offset="100%" stop-color="#ece5d8" stop-opacity="0"/>
+          </linearGradient>
+        </defs>
+        <line class="axis" x1="0" y1="${base}" x2="${W}" y2="${base}"/>
+        <path class="area" d="${d} L${pts[pts.length-1].x},${base} L${pts[0].x},${base} Z"/>
+        <path class="trace" d="${d}"/>
+        ${pts.map(p => `
+          <g class="stn" data-tab="${p.s.id}" aria-current="${p.s.id === "home"}" role="button"
+             tabindex="0" aria-label="${esc(p.s.label)}, ${WEIGHTS[p.s.id]} entries">
+            <line class="stem" x1="${p.x}" y1="${p.y}" x2="${p.x}" y2="${base}"/>
+            <text class="val" x="${p.x}" y="${p.y - 13}" text-anchor="middle">${WEIGHTS[p.s.id]}</text>
+            <circle class="dot" cx="${p.x}" cy="${p.y}" r="4"/>
+            <text class="lbl" x="${p.x}" y="${base + 20}" text-anchor="middle">${esc(p.s.label)}</text>
+            <rect class="hit" x="${p.x - step/2}" y="0" width="${step}" height="${H}"/>
+          </g>`).join("")}
+      </svg>`;
+
+    document.getElementById("gauge-total").textContent =
+      Object.values(WEIGHTS).reduce((a, b) => a + b, 0) + " entries";
+
+    /* The trace draws itself on load, like a pen recording a rising level. */
+    const trace = document.querySelector(".gauge .trace");
+    if(!matchMedia("(prefers-reduced-motion:reduce)").matches){
+      const len = trace.getTotalLength();
+      trace.style.strokeDasharray = len;
+      trace.style.strokeDashoffset = len;
+      trace.animate([{strokeDashoffset:len},{strokeDashoffset:0}],
+        {duration:2200, delay:700, easing:"cubic-bezier(.22,.68,.28,1)", fill:"forwards"});
+    }
+  })();
 
   /* ═══════════════════════════════════════════════════════════════════
      PANEL ENGINE
-     Same idea as the AIWC site: every panel is in the DOM, `hidden`
-     toggles which one is shown, and the hash keeps deep links working.
+     Every panel is in the DOM; `hidden` picks one, and the hash keeps
+     deep links working.
      ═══════════════════════════════════════════════════════════════════ */
 
   const panels = [...document.querySelectorAll("[data-panel]")];
-  const tabs = [...document.querySelectorAll("[data-tab]")];
   const names = new Set(SECTIONS.map(s => s.id));
 
   function showPanel(name, updateHash = true){
     if(!names.has(name)) name = "home";
     panels.forEach(p => p.hidden = p.dataset.panel !== name);
-    tabs.forEach(t => {
+    document.querySelectorAll("[data-tab]").forEach(t => {
       const on = String(t.dataset.tab === name);
-      t.setAttribute(t.classList.contains("seg") ? "aria-current" : "aria-selected", on);
+      t.setAttribute(t.classList.contains("stn") ? "aria-current" : "aria-selected", on);
     });
     const section = SECTIONS.find(s => s.id === name);
     document.title = name === "home" ? "Alan Ng" : `${section.label} — Alan Ng`;
     if(updateHash) history.replaceState(null, "", "#" + name);
     window.scrollTo({top:0, behavior:"smooth"});
     document.getElementById("bar-menu").removeAttribute("open");
+    FIELD.retarget(name);
   }
 
-  tabs.forEach(t => t.addEventListener("click", () => showPanel(t.dataset.tab)));
+  document.querySelectorAll("[data-tab]").forEach(t => {
+    t.addEventListener("click", () => showPanel(t.dataset.tab));
+    if(t.classList.contains("stn")) t.addEventListener("keydown", e => {
+      if(e.key === "Enter" || e.key === " "){ e.preventDefault(); showPanel(t.dataset.tab); }
+    });
+  });
   document.querySelectorAll("[data-go]").forEach(link =>
     link.addEventListener("click", e => { e.preventDefault(); showPanel(link.dataset.go); }));
 
   const resolveHash = () => showPanel(decodeURIComponent(location.hash.slice(1)) || "home", false);
   addEventListener("hashchange", resolveHash);
-  resolveHash();
 
-  /* ─── Search wiring ────────────────────────────────────────────────
-     One handler per searchable list. Each entry carries its own
-     searchable text in data-search, so there is no index to build. */
-
+  /* ─── Search ───────────────────────────────────────────────────── */
   function wireSearch(inputId, listId, emptyId){
     const input = document.getElementById(inputId);
     const list = document.getElementById(listId);
@@ -659,9 +733,146 @@
       if(empty) empty.hidden = shown > 0;
     });
   }
-
   wireSearch("projects-search", "projects-list", "projects-empty");
   wireSearch("writing-search", "writing-list", "writing-empty");
+
+  /* ═══════════════════════════════════════════════════════════════════
+     THE STREAMLINE FIELD
+     Particles advect through a noise-driven vector field, leaving faint
+     trails that accumulate like a plotter drawing. Self-contained: the
+     noise is a small value-noise implementation, no library.
+     ═══════════════════════════════════════════════════════════════════ */
+
+  const FIELD = (() => {
+    const cv = document.getElementById("flow");
+    const ctx = cv.getContext("2d", {alpha:false});
+    const still = matchMedia("(prefers-reduced-motion:reduce)");
+
+    /* Value noise: a hashed lattice with smoothstep interpolation.
+       Deterministic, ~20 lines, and smooth enough to read as flow. */
+    const hash = (x, y) => {
+      const n = Math.sin(x * 127.1 + y * 311.7) * 43758.5453;
+      return n - Math.floor(n);
+    };
+    const smooth = t => t * t * (3 - 2 * t);
+    function noise(x, y){
+      const xi = Math.floor(x), yi = Math.floor(y);
+      const xf = x - xi, yf = y - yi;
+      const u = smooth(xf), v = smooth(yf);
+      return (hash(xi,yi)*(1-u) + hash(xi+1,yi)*u) * (1-v)
+           + (hash(xi,yi+1)*(1-u) + hash(xi+1,yi+1)*u) * v;
+    }
+
+    let W = 0, H = 0, dpr = 1, parts = [], raf = 0, t = 0, running = false;
+    /* drift is px advanced per frame. Below ~1px the segments are sub-pixel
+       and antialiasing dissolves them, which is why the field was invisible
+       at 0.78. 2.0 draws a legible line and still reads as a slow current. */
+    let scale = 0.0016, drift = 2.0, target = 0.0016;
+
+    const COUNT = () => Math.min(2400, Math.round(innerWidth * innerHeight / 1100));
+
+    function resize(){
+      dpr = Math.min(devicePixelRatio || 1, 2);
+      W = innerWidth; H = innerHeight;
+      cv.width = W * dpr; cv.height = H * dpr;
+      cv.style.width = W + "px"; cv.style.height = H + "px";
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      ctx.fillStyle = "#0a0f0e";
+      ctx.fillRect(0, 0, W, H);
+      seed();
+      prime();
+    }
+
+    /* The animated loop needs ~7s to build a visible drawing, which would
+       mean the first thing a visitor sees is an empty black page. So trace
+       the streamlines once, synchronously, at load — the field is already
+       there on the first frame and the animation carries on from it.
+       Integrating whole streamlines is far cheaper than simulating the
+       frames that would have produced them (~25ms rather than ~400ms). */
+    function prime(){
+      ctx.lineWidth = 0.9;
+      ctx.strokeStyle = "rgba(236,229,216,.16)";
+      const lines = Math.round(W * H / 3400);
+      for(let i = 0; i < lines; i++){
+        let x = Math.random() * W, y = Math.random() * H;
+        ctx.beginPath(); ctx.moveTo(x, y);
+        for(let s = 0; s < 96; s++){
+          const a = angleAt(x, y);
+          x += Math.cos(a) * drift; y += Math.sin(a) * drift;
+          ctx.lineTo(x, y);
+        }
+        ctx.stroke();
+      }
+    }
+
+    function seed(){
+      parts = Array.from({length: COUNT()}, () => ({
+        x: Math.random() * W, y: Math.random() * H,
+        life: 40 + Math.random() * 260,
+      }));
+    }
+
+    function angleAt(x, y){
+      /* Two octaves — the second adds the small eddies that make it read
+         as water rather than as a smooth gradient. */
+      const n = noise(x * scale, y * scale + t)
+              + noise(x * scale * 2.4, y * scale * 2.4 - t * 1.4) * 0.42;
+      return n * Math.PI * 3.4;
+    }
+
+    function frame(){
+      /* Never clear — fade instead, so trails accumulate into a drawing.
+         A trail decays to 1/e in roughly 1/alpha frames: .034 wiped the
+         canvas in half a second and left 0.4% of pixels inked. .0022 holds
+         a trail for ~7s, which is what lets streamlines actually build up. */
+      ctx.fillStyle = "rgba(10,15,14,.0022)";
+      ctx.fillRect(0, 0, W, H);
+
+      ctx.lineWidth = 0.9;
+      ctx.strokeStyle = "rgba(236,229,216,.34)";
+      ctx.beginPath();
+      for(const p of parts){
+        const a = angleAt(p.x, p.y);
+        const nx = p.x + Math.cos(a) * drift, ny = p.y + Math.sin(a) * drift;
+        ctx.moveTo(p.x, p.y); ctx.lineTo(nx, ny);
+        p.x = nx; p.y = ny; p.life--;
+        if(p.life < 0 || p.x < -20 || p.x > W + 20 || p.y < -20 || p.y > H + 20){
+          p.x = Math.random() * W; p.y = Math.random() * H;
+          p.life = 40 + Math.random() * 260;
+        }
+      }
+      ctx.stroke();
+
+      t += 0.00035;
+      scale += (target - scale) * 0.02;   /* eased response to navigation */
+      raf = requestAnimationFrame(frame);
+    }
+
+    function start(){ if(!running && !still.matches){ running = true; raf = requestAnimationFrame(frame); } }
+    function stop(){ running = false; cancelAnimationFrame(raf); }
+
+    addEventListener("resize", resize, {passive:true});
+    /* rAF does not run in a hidden tab anyway; stopping explicitly also
+       releases the loop rather than leaving it queued. */
+    document.addEventListener("visibilitychange", () => document.hidden ? stop() : start());
+
+    resize();          /* draws the primed field — this is what reduced
+                          motion keeps, as its single static frame */
+    start();           /* no-op when reduced motion is requested */
+
+    return {
+      /* Each section gets its own flow character — the field responds to
+         navigation instead of ignoring it — and steps back on the panels
+         people actually read. */
+      retarget(name){
+        const map = {home:0.0016, work:0.0022, projects:0.0029, writing:0.0013, research:0.0019, contact:0.0011};
+        target = map[name] ?? 0.0016;
+        cv.style.opacity = name === "home" ? "1" : "0.28";
+      },
+    };
+  })();
+
+  resolveHash();
   </script>
 </body>
 </html>
