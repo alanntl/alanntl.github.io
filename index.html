@@ -67,6 +67,42 @@
   .veil{position:fixed;inset:0;z-index:1;pointer-events:none;
     background:radial-gradient(140% 100% at 18% 10%,rgba(10,15,14,.55) 0%,rgba(10,15,14,.28) 45%,rgba(10,15,14,.42) 100%)}
 
+  /* ─── Grain ────────────────────────────────────────────────────────
+     A single inline SVG turbulence, tiled. Gives the page the tooth of
+     printed paper so the flat black reads as ink rather than as screen.
+     No image file — it stays self-contained. */
+  .grain{position:fixed;inset:-120%;z-index:3;pointer-events:none;opacity:.32;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.82' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='180' height='180' filter='url(%23n)' opacity='.5'/%3E%3C/svg%3E");
+    animation:grain 6.5s steps(1) infinite;mix-blend-mode:overlay}
+  @keyframes grain{
+    0%{transform:translate(0,0)}      10%{transform:translate(-6%,-4%)}
+    20%{transform:translate(-14%,4%)} 30%{transform:translate(6%,-12%)}
+    40%{transform:translate(-8%,14%)} 50%{transform:translate(-14%,6%)}
+    60%{transform:translate(10%,0)}   70%{transform:translate(0,12%)}
+    80%{transform:translate(4%,-14%)} 90%{transform:translate(-6%,8%)}
+  }
+
+  /* ─── The overture ─────────────────────────────────────────────────
+     One orchestrated arrival rather than several scattered effects: a
+     level rises across the plate, then the plate wipes away upward and
+     hands over to the hero, which is already lifting behind it. */
+  /* pointer-events:none from the outset — once wiped the plate is clipped
+     to nothing but still in the layer tree, and it would otherwise swallow
+     every click on the page. Script also hides it once the wipe ends. */
+  .curtain{position:fixed;inset:0;z-index:200;background:var(--deeper);
+    display:grid;place-items:center;gap:0;pointer-events:none;
+    animation:wipe 1.05s var(--ease) 1.5s both}
+  .curtain-inner{display:grid;justify-items:center;gap:20px;
+    animation:fade .5s var(--ease) reverse 1.35s both}
+  .curtain b{font-family:var(--mono);font-size:.63rem;letter-spacing:.5em;
+    text-transform:uppercase;color:var(--muted);font-weight:400;text-indent:.5em}
+  .curtain i{display:block;width:min(38vw,260px);height:1px;background:var(--line);position:relative}
+  .curtain i::after{content:"";position:absolute;inset:0 100% 0 0;background:var(--mark);
+    animation:rise-level 1.35s var(--ease) .1s both}
+  @keyframes rise-level{to{right:0}}
+  @keyframes wipe{to{clip-path:inset(0 0 100% 0)}}
+  .curtain[hidden]{display:none}
+
   /* ─── Type roles ───────────────────────────────────────────────── */
   .display{font-family:var(--serif);font-weight:400;letter-spacing:-.022em;line-height:.98}
   .tag{font-family:var(--mono);font-size:.63rem;letter-spacing:.22em;text-transform:uppercase;color:var(--muted)}
@@ -127,19 +163,22 @@
 
   /* ─── Hero ─────────────────────────────────────────────────────── */
   .hero{padding:16vh 0 9vh}
-  .hero .tc{display:block;margin-bottom:34px;opacity:0;animation:fade 1s var(--ease) .15s both}
+  /* Hero timings are set against the overture: the curtain begins wiping
+     at 1.5s, so the headline starts lifting at 1.62s and is caught
+     mid-reveal rather than waiting politely behind it. */
+  .hero .tc{display:block;margin-bottom:34px;opacity:0;animation:fade 1s var(--ease) 1.62s both}
   .hero h1{margin:0;font-size:clamp(2.9rem,8.2vw,6.4rem)}
   /* Each line reveals from behind its own mask, in sequence. */
   .hero h1 .ln{display:block;overflow:hidden}
-  .hero h1 .ln i{display:block;font-style:normal;transform:translateY(102%);animation:lift 1.25s var(--ease) both}
-  .hero h1 .ln:nth-child(1) i{animation-delay:.20s}
-  .hero h1 .ln:nth-child(2) i{animation-delay:.34s}
-  .hero h1 .ln:nth-child(3) i{animation-delay:.48s}
+  .hero h1 .ln i{display:block;font-style:normal;transform:translateY(102%);animation:lift 1.35s var(--ease) both}
+  .hero h1 .ln:nth-child(1) i{animation-delay:1.68s}
+  .hero h1 .ln:nth-child(2) i{animation-delay:1.83s}
+  .hero h1 .ln:nth-child(3) i{animation-delay:1.98s}
   .hero h1 em{font-style:italic;color:var(--mark)}
   @keyframes lift{from{transform:translateY(102%)}to{transform:none}}
   @keyframes fade{from{opacity:0}to{opacity:1}}
-  .hero p{max-width:54ch;margin:38px 0 0;font-size:1.09rem;color:var(--muted);opacity:0;animation:fade 1.1s var(--ease) .72s both}
-  .hero-actions{display:flex;flex-wrap:wrap;gap:12px;margin-top:44px;opacity:0;animation:fade 1.1s var(--ease) .88s both}
+  .hero p{max-width:54ch;margin:38px 0 0;font-size:1.09rem;color:var(--muted);opacity:0;animation:fade 1.1s var(--ease) 2.32s both}
+  .hero-actions{display:flex;flex-wrap:wrap;gap:12px;margin-top:44px;opacity:0;animation:fade 1.1s var(--ease) 2.5s both}
 
   .btn{position:relative;display:inline-flex;align-items:center;gap:10px;padding:13px 24px;
     border:1px solid var(--line);background:none;color:var(--bone);text-decoration:none;cursor:pointer;
@@ -181,11 +220,26 @@
   .gauge .stn[aria-current=true] .lbl,.gauge .stn[aria-current=true] .val{fill:var(--mark)}
 
   /* ─── Content ──────────────────────────────────────────────────── */
-  .head{padding:14vh 0 7vh}
+  /* Section heads carry an oversized numeral as a watermark. It is the
+     section's real index, set enormous and nearly submerged — the kind of
+     structural mark that belongs to the page rather than decorating it. */
+  .head{position:relative;padding:14vh 0 7vh}
+  .head .shell{position:relative}
+  .head::before{content:attr(data-numeral);position:absolute;z-index:-1;
+    right:4vw;top:6vh;font-family:var(--serif);font-size:clamp(9rem,26vw,22rem);
+    line-height:.8;color:var(--bone);opacity:.035;pointer-events:none;user-select:none}
   .head .tc{display:block;margin-bottom:30px}
   .head h1{margin:0;font-size:clamp(2.5rem,6.6vw,4.8rem)}
   .head .lede{max-width:52ch;margin:30px 0 0;font-size:1.05rem;color:var(--muted)}
   .body{padding-bottom:16vh}
+
+  /* ─── Scroll reveal ────────────────────────────────────────────────
+     Long panels arrive as you reach them, masked from below and staggered
+     by position. Set from script via IntersectionObserver so nothing moves
+     until it is actually about to be read. */
+  .rv{opacity:0;transform:translateY(30px);clip-path:inset(0 0 100% 0);
+    transition:opacity .95s var(--ease),transform .95s var(--ease),clip-path .95s var(--ease)}
+  .rv.in{opacity:1;transform:none;clip-path:inset(0 0 -8% 0)}
 
   .split{display:grid;grid-template-columns:minmax(0,190px) minmax(0,1fr);gap:52px;
     padding:64px 0;border-top:1px solid var(--line-soft)}
@@ -256,10 +310,15 @@
      Everything still arrives, nothing moves. The flow field renders a
      single static frame instead of animating (handled in script). */
   @media (prefers-reduced-motion:reduce){
-    *,*::before,*::after{animation-duration:.001ms!important;animation-iteration-count:1!important;
-      transition-duration:.001ms!important;scroll-behavior:auto!important}
+    *,*::before,*::after{animation-duration:.001ms!important;animation-delay:0s!important;
+      animation-iteration-count:1!important;transition-duration:.001ms!important;scroll-behavior:auto!important}
     .hero h1 .ln i{transform:none}
     .panel > *{opacity:1;transform:none;clip-path:none}
+    /* Zeroing the delay alone would still flash the plate; remove it. */
+    .curtain{display:none}
+    .grain{animation:none}
+    /* Content is present rather than waiting to be scrolled into. */
+    .rv{opacity:1;transform:none;clip-path:none}
   }
 
   @media print{
@@ -275,6 +334,10 @@
   <a class="skip" href="#content">Skip to content</a>
   <canvas id="flow" aria-hidden="true"></canvas>
   <div class="veil" aria-hidden="true"></div>
+  <div class="grain" aria-hidden="true"></div>
+  <div class="curtain" id="curtain" aria-hidden="true">
+    <div class="curtain-inner"><b>Alan Ng</b><i></i></div>
+  </div>
 
   <aside class="rail" aria-label="Sections">
     <a class="mark-a" href="#home" data-go="home"><b>Alan Ng</b><span>Researcher · Sydney</span></a>
@@ -335,7 +398,7 @@
 
     <!-- ── WORK ────────────────────────────────────────────────────── -->
     <section class="panel" id="panel-work" data-panel="work" hidden>
-      <div class="head"><div class="shell">
+      <div class="head" data-numeral="01"><div class="shell">
         <p class="tc">01 — Background</p>
         <h1 class="display">Background.</h1>
         <p class="lede">A researcher with interests spanning engineering, data science, finance and software systems — and the working rules that came out of moving between them.</p>
@@ -345,7 +408,7 @@
 
     <!-- ── PROJECTS ────────────────────────────────────────────────── -->
     <section class="panel" id="panel-projects" data-panel="projects" hidden>
-      <div class="head"><div class="shell">
+      <div class="head" data-numeral="02"><div class="shell">
         <p class="tc">02 — Projects</p>
         <h1 class="display">Things I've built.</h1>
         <p class="lede">Mostly small, mostly browser-native, mostly built because the existing tool wanted my files on its server.</p>
@@ -362,7 +425,7 @@
 
     <!-- ── WRITING ─────────────────────────────────────────────────── -->
     <section class="panel" id="panel-writing" data-panel="writing" hidden>
-      <div class="head"><div class="shell">
+      <div class="head" data-numeral="03"><div class="shell">
         <p class="tc">03 — Writing</p>
         <h1 class="display">Notes.</h1>
         <p class="lede">Write-ups of things that took longer than they should have, kept mainly so I don't solve them twice.</p>
@@ -379,7 +442,7 @@
 
     <!-- ── RESEARCH ────────────────────────────────────────────────── -->
     <section class="panel" id="panel-research" data-panel="research" hidden>
-      <div class="head"><div class="shell">
+      <div class="head" data-numeral="04"><div class="shell">
         <p class="tc">04 — Research</p>
         <h1 class="display">Research.</h1>
         <p class="lede">Water science at Western Sydney University, and reinforcement learning applied to problems where the interesting question is which inputs break the solver.</p>
@@ -391,7 +454,7 @@
 
     <!-- ── CONTACT ─────────────────────────────────────────────────── -->
     <section class="panel" id="panel-contact" data-panel="contact" hidden>
-      <div class="head"><div class="shell">
+      <div class="head" data-numeral="05"><div class="shell">
         <p class="tc">05 — Contact</p>
         <h1 class="display">Get in touch.</h1>
         <p class="lede">Happy to hear about research collaborations, or about a bug in one of the tools.</p>
@@ -767,7 +830,16 @@
     /* drift is px advanced per frame. Below ~1px the segments are sub-pixel
        and antialiasing dissolves them, which is why the field was invisible
        at 0.78. 2.0 draws a legible line and still reads as a slow current. */
-    let scale = 0.0016, drift = 2.0, target = 0.0016;
+    let scale = 0.0016, drift = 2.0, target = 0.0016, surge = 1;
+    const pointer = {x:-9999, y:-9999, on:false};
+
+    /* Pointer only — a touch drag would fight the page scroll, and on a
+       phone the finger covers the effect anyway. */
+    addEventListener("pointermove", e => {
+      if(e.pointerType === "touch") return;
+      pointer.x = e.clientX; pointer.y = e.clientY; pointer.on = true;
+    }, {passive:true});
+    addEventListener("pointerleave", () => { pointer.on = false; }, {passive:true});
 
     const COUNT = () => Math.min(2400, Math.round(innerWidth * innerHeight / 1100));
 
@@ -831,9 +903,28 @@
       ctx.lineWidth = 0.9;
       ctx.strokeStyle = "rgba(236,229,216,.34)";
       ctx.beginPath();
+
+      const R = 210, R2 = R * R;
       for(const p of parts){
         const a = angleAt(p.x, p.y);
-        const nx = p.x + Math.cos(a) * drift, ny = p.y + Math.sin(a) * drift;
+        let vx = Math.cos(a), vy = Math.sin(a);
+
+        /* The cursor is a vortex in the field. Within R the particle picks
+           up a perpendicular (swirl) component plus a weaker outward push,
+           both falling off linearly — so the water turns around the pointer
+           instead of merely avoiding it. Costs one distance test per
+           particle per frame. */
+        if(pointer.on){
+          const dx = p.x - pointer.x, dy = p.y - pointer.y, d2 = dx*dx + dy*dy;
+          if(d2 < R2){
+            const d = Math.sqrt(d2) || 1, f = 1 - d / R;
+            vx += (-dy / d) * f * 2.4 + (dx / d) * f * 1.0;
+            vy += ( dx / d) * f * 2.4 + (dy / d) * f * 1.0;
+          }
+        }
+
+        const m = Math.hypot(vx, vy) || 1, step = drift * surge;
+        const nx = p.x + vx / m * step, ny = p.y + vy / m * step;
         ctx.moveTo(p.x, p.y); ctx.lineTo(nx, ny);
         p.x = nx; p.y = ny; p.life--;
         if(p.life < 0 || p.x < -20 || p.x > W + 20 || p.y < -20 || p.y > H + 20){
@@ -845,6 +936,7 @@
 
       t += 0.00035;
       scale += (target - scale) * 0.02;   /* eased response to navigation */
+      surge += (1 - surge) * 0.035;       /* settle back after a navigation */
       raf = requestAnimationFrame(frame);
     }
 
@@ -868,11 +960,63 @@
         const map = {home:0.0016, work:0.0022, projects:0.0029, writing:0.0013, research:0.0019, contact:0.0011};
         target = map[name] ?? 0.0016;
         cv.style.opacity = name === "home" ? "1" : "0.28";
+        surge = 3.4;   /* the current quickens on arrival, then settles */
       },
     };
   })();
 
   resolveHash();
-  </script>
+
+  /* ═══════════════════════════════════════════════════════════════════
+     ARRIVAL
+     The plate retires once it has wiped, and long panels reveal their
+     content as it is reached.
+     ═══════════════════════════════════════════════════════════════════ */
+
+  const curtain = document.getElementById("curtain");
+  curtain.addEventListener("animationend", () => curtain.hidden = true);
+  /* animationend never fires if the tab is backgrounded through the whole
+     overture, so retire it on a timer too. */
+  setTimeout(() => curtain.hidden = true, 3200);
+
+  (function reveals(){
+    const still = matchMedia("(prefers-reduced-motion:reduce)");
+    if(still.matches || !("IntersectionObserver" in window)) return;
+
+    const targets = () =>
+      [...document.querySelectorAll(".body .split, .body > .shell > .list > .item")];
+
+    const io = new IntersectionObserver(entries => {
+      entries.forEach(e => {
+        if(!e.isIntersecting) return;
+        e.target.classList.add("in");
+        io.unobserve(e.target);
+      });
+    }, {rootMargin:"0px 0px -10% 0px", threshold:0.06});
+
+    /* Only arm what is below the fold. Anything already on screen is left
+       untouched, so a missed observer callback can never blank the page —
+       the failure mode of a reveal system is invisible content, and that is
+       worse than no animation at all. */
+    function arm(){
+      let n = 0;
+      for(const el of targets()){
+        if(el.dataset.armed) continue;
+        el.dataset.armed = "1";
+        if(el.getBoundingClientRect().top < innerHeight * 0.92) continue;
+        el.classList.add("rv");
+        el.style.transitionDelay = Math.min(n++, 5) * 70 + "ms";
+        io.observe(el);
+      }
+    }
+
+    arm();
+    /* Re-arm after a panel change, once the new panel has laid out. */
+    const armLater = () => requestAnimationFrame(() => requestAnimationFrame(arm));
+    document.querySelectorAll("[data-tab],[data-go]").forEach(el =>
+      el.addEventListener("click", armLater));
+    addEventListener("hashchange", armLater);
+  })();
+</script>
 </body>
 </html>
