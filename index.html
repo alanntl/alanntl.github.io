@@ -107,11 +107,17 @@
     .strip-wrap{padding:8px 0 4px}
     .strip-meta{display:flex;justify-content:space-between;align-items:baseline;gap:16px;margin-bottom:10px}
     .strip{position:relative;display:flex;gap:3px;height:64px;padding:0;border:0;background:none}
-    /* min-width floors a segment at the width of its own label, so a
-       narrow section never clips to "CONTA". flex-grow then shares out
-       the remaining space by weight, which keeps the proportions readable
-       even though they're no longer strictly to scale. */
-    .seg{position:relative;flex:1 1 auto;min-width:78px;padding:0;border:0;border-radius:2px;background:var(--skip);cursor:pointer;overflow:hidden;transition:background .22s,transform .22s}
+    /* Width allocation. Every segment starts at a fixed 66px basis — wide
+       enough for the longest label, so none ever clips to "CONTA" — and
+       flex-grow (set inline, per section) shares out only what's left over,
+       in proportion to weight. So width = 66px + leftover x weight/total.
+       That is an affine map from weight to width, which matters: it keeps
+       the order strict and the *differences* exactly proportional, though
+       it compresses the ratios. Do not swap this for `flex:1 1 auto` with
+       a min-width — that bases each segment on its own label width and
+       then clamps the small ones, which collapsed weight 2 and weight 1
+       to an identical 78px. */
+    .seg{position:relative;flex-basis:66px;flex-shrink:0;min-width:0;padding:0;border:0;border-radius:2px;background:var(--skip);cursor:pointer;overflow:hidden;transition:background .22s,transform .22s}
     /* Labels stay visible at rest — the strip is a readout, so it has to
        be legible without hovering. Colour flips with the segment state so
        it contrasts in both schemes. */
@@ -204,7 +210,7 @@
       .head{padding:46px 0 26px}
       .strip{height:52px;overflow-x:auto;overflow-y:hidden;padding-block:6px;scrollbar-width:none}
       .strip::-webkit-scrollbar{display:none}
-      .seg{min-width:66px}
+      .seg{flex-basis:58px}
       .item{grid-template-columns:1fr}
       .item .meta{justify-content:flex-start}
     }
