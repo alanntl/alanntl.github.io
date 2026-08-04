@@ -30,7 +30,7 @@ clamped to [0.25, 0.75] — a fresh browser is exactly 50:50
 The floor binds only when one edition holds attention more than 3× longer, and
 it is what keeps the estimate alive: both editions keep being sampled, so no
 early lucky streak can lock the loser out. Everything lives in `localStorage`
-(`edition-bandit-v1`) — there is no server, so each browser learns its own odds
+(`edition-bandit-v2`) — there is no server, so each browser learns its own odds
 rather than pooling across visitors.
 
 Practical bits: `?edition=catchment|studio` forces one; the draw is pinned per
@@ -52,9 +52,9 @@ rather than applied as decoration:
 - **The hydrograph** — the navigation on the home page is a gauging-station
   trace. Stage height at each station is the number of entries in that section,
   so the chart is a real reading of the site. Every station is a link.
-- **Serif display against monospace labels**, on a single dark ground. The page
-  deliberately has no light counterpart: the field only reads against deep
-  colour, so committing to one look is the design decision.
+- **Serif display against monospace labels** on deep ground in catchment;
+  display grotesque against the same mono in studio. The field only reads
+  against deep colour, which is why it belongs to catchment alone.
 
 ## Editing it
 
