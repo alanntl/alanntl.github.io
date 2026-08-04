@@ -14,9 +14,14 @@ The same DOM, the same content arrays, two complete visual systems scoped by
 
 - **CATCHMENT** — the animated night piece: dark ground, serif, the streamline
   field, the overture, film grain.
-- **SURVEY** — the printed daylight record: paper ground, grotesque, hairline
-  rules, dotted ledger leaders, folio stamps, a masthead with a survey ruler —
-  and no animation at all, because a report is not performed, it is issued.
+- **SURVEY** — the map sheet: warm paper under a full-page **contour plot of
+  the same ψ** (marching squares, brown linework, every 4th line an index
+  contour), an engineering title block, the hydrograph on blue-gridded
+  field-book paper, italic-serif water labels for the accent moments, folio
+  stamps, dotted ledger leaders — and no animation at all, because a report
+  is not performed, it is issued. The level sets of a stream function *are*
+  the streamlines of its flow, so the two editions render the same object
+  in two notations.
 
 Which edition a visit opens with is a draw made in `<head>` before first paint.
 The odds are learned **per browser** from dwell time (visible seconds, capped at
