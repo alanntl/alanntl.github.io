@@ -203,10 +203,20 @@
   .ed-odds{display:block;margin-top:6px;font-family:var(--mono);font-size:.55rem;letter-spacing:.12em;color:var(--faint)}
   .bar nav .ed-toggle{padding:11px 12px;font-size:.62rem}
 
-  /* The author, mounted like a plate in a report. */
-  .portrait{margin:26px 0 0;max-width:170px}
-  .portrait img{width:100%;border:1px solid var(--line);padding:7px;background:var(--deeper);filter:grayscale(.28) contrast(1.03)}
+  /* The author, mounted like a plate in a report. height:auto is load-
+     bearing: without it the HTML height attribute keeps acting as a fixed
+     400px while CSS narrows the width, and the photo renders stretched. */
+  .portrait{margin:0}
+  .portrait img{width:100%;height:auto;border:1px solid var(--line);padding:7px;background:var(--deeper);filter:grayscale(.28) contrast(1.03)}
   .portrait figcaption{margin-top:9px;font-family:var(--mono);font-size:.57rem;letter-spacing:.18em;text-transform:uppercase;color:var(--faint)}
+
+  /* Hero grid: copy on the left, the author in the upper right. The h1
+     sizes itself to its own column (cqw) so it can never collide with the
+     portrait; browsers without container units keep the viewport clamp. */
+  .hero-grid{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:clamp(28px,5vw,64px);align-items:start}
+  .hero-copy{container-type:inline-size;min-width:0}
+  .hero-copy h1{font-size:clamp(2.5rem,10.5cqw,6.4rem)}
+  .hero .portrait{width:clamp(150px,17vw,200px);opacity:0;animation:fade 1.1s var(--ease) 2.15s both}
 
   /* ─── Mobile bar ───────────────────────────────────────────────── */
   .bar{display:none;position:sticky;top:0;z-index:40;align-items:center;justify-content:space-between;
@@ -390,6 +400,9 @@
     .hero{padding:11vh 0 7vh}
     .head{padding:9vh 0 5vh}
     .item{grid-template-columns:1fr}
+    /* Phones stack the hero — photo first, so it stays in the upper space. */
+    .hero-grid{grid-template-columns:1fr;gap:24px}
+    .hero .portrait{order:-1;width:136px}
     .item .meta{justify-content:flex-start}
     .gauge-scroll{overflow-x:auto;scrollbar-width:none}
     .gauge-scroll::-webkit-scrollbar{display:none}
@@ -496,10 +509,13 @@
   html[data-style="studio"] .search{border-bottom:1px solid var(--line)}
   html[data-style="studio"] .search input{font-weight:550}
 
-  /* Portrait: clean card, full colour. */
+  /* Portrait: clean card in the hero's upper right, full colour. */
   html[data-style="studio"] .portrait img{border:0;padding:0;background:none;filter:none;
-    border-radius:14px;box-shadow:0 18px 44px rgba(11,11,12,.12)}
+    border-radius:18px;box-shadow:0 18px 44px rgba(11,11,12,.12)}
   html[data-style="studio"] .portrait figcaption{color:var(--faint)}
+  html[data-style="studio"] .hero-copy h1{font-size:clamp(2.8rem,11cqw,7rem)}
+  html[data-style="studio"] .hero .portrait{width:clamp(190px,21vw,270px);
+    animation:fade .9s var(--ease) .5s both}
 
   html[data-style="studio"] .head{padding:11vh 0 6vh}
   html[data-style="studio"] .split{padding:56px 0}
@@ -534,18 +550,21 @@
 
     <!-- ── HOME ────────────────────────────────────────────────────── -->
     <section class="panel" id="panel-home" data-panel="home">
-      <div class="hero"><div class="shell">
-        <p class="tc">Alan Ng — Sydney, Australia</p>
-        <h1 class="display">
-          <span class="ln"><i>Different fields.</i></span>
-          <span class="ln"><i>The same question:</i></span>
-          <span class="ln"><i><em>can you trust it?</em></i></span>
-        </h1>
-        <p>I'm a Research Fellow at Western Sydney University, applying AI and data analytics to water science. Before that: mechanical engineering, software, automation, energy and fintech. What carries across is an interest in tools people can actually check — and in helping them understand complex systems well enough to make better decisions.</p>
-        <div class="hero-actions">
-          <a class="btn solid" href="#research" data-go="research"><span>The research</span></a>
-          <a class="btn" href="#projects" data-go="projects"><span>Things I've built</span></a>
+      <div class="hero"><div class="shell hero-grid">
+        <div class="hero-copy">
+          <p class="tc">Alan Ng — Sydney, Australia</p>
+          <h1 class="display">
+            <span class="ln"><i>Different fields.</i></span>
+            <span class="ln"><i>The same question:</i></span>
+            <span class="ln"><i><em>can you trust it?</em></i></span>
+          </h1>
+          <p>I'm a Research Fellow at Western Sydney University, applying AI and data analytics to water science. Before that: mechanical engineering, software, automation, energy and fintech. What carries across is an interest in tools people can actually check — and in helping them understand complex systems well enough to make better decisions.</p>
+          <div class="hero-actions">
+            <a class="btn solid" href="#research" data-go="research"><span>The research</span></a>
+            <a class="btn" href="#projects" data-go="projects"><span>Things I've built</span></a>
+          </div>
         </div>
+        <figure class="portrait"><img src="assets/portrait.jpg" alt="Alan Ng" width="400" height="400"><figcaption>Fig. 01 — the author</figcaption></figure>
       </div></div>
 
       <div class="body"><div class="shell">
@@ -564,10 +583,7 @@
         </div>
 
         <div class="split">
-          <div>
-            <p class="tag">Position</p><h2 class="display">What I'm doing now.</h2>
-            <figure class="portrait"><img src="assets/portrait.jpg" alt="Alan Ng" width="400" height="400" loading="lazy"><figcaption>Fig. 01 — the author</figcaption></figure>
-          </div>
+          <div><p class="tag">Position</p><h2 class="display">What I'm doing now.</h2></div>
           <div class="prose">
             <p><strong>Research Fellow, Western Sydney University.</strong> Based in Sydney, Australia, applying AI and data analytics to water science — the kind of problem where the modelling only matters if the people who know the catchment can interrogate the result.</p>
             <p>Alongside that I keep building small tools: LLM agents, cloud systems, mathematical modelling, and browser-native software that does its work on your own machine rather than someone else's server.</p>
