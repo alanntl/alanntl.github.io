@@ -1,0 +1,48 @@
+{
+  "fields": [
+    {
+      "field": "Water science",
+      "when": "Now",
+      "current": true,
+      "blurb": "Research Fellow at Western Sydney University, applying AI and data analytics to water science. Sydney, Australia."
+    },
+    {
+      "field": "Software systems",
+      "when": "Throughout",
+      "blurb": "LLM agents, cloud systems and browser-native tools. Most of the Projects page comes from here."
+    },
+    {
+      "field": "Fintech",
+      "when": "Earlier",
+      "blurb": "Financial systems and market data — the origin of Traddy, a portfolio and trading interface for Interactive Brokers."
+    },
+    {
+      "field": "Energy & automation",
+      "when": "Earlier",
+      "blurb": "Industrial and energy systems, where a model being wrong has physical consequences rather than merely inconvenient ones."
+    },
+    {
+      "field": "Mechanical engineering",
+      "when": "Where it started",
+      "blurb": "The first discipline, and the reason I tend to want a model I can take apart and check rather than one I have to take on faith."
+    }
+  ],
+  "rules": [
+    {
+      "name": "Do the work once",
+      "blurb": "Quickmini trims and compresses in a single ffmpeg pass. Two passes would decode and re-encode the video twice and lose quality to a second round of compression, for no gain. Most speed comes from removing a step, not tuning one."
+    },
+    {
+      "name": "Silently wrong beats slow — never",
+      "blurb": "Stream copy made trims about 20× faster, but cuts can only land on keyframes: a requested 7.0s trim exported 18.8s with no error. It was removed. An output that is quietly incorrect costs far more than one that takes 25 seconds."
+    },
+    {
+      "name": "Write down what didn't work",
+      "blurb": "The multithreaded ffmpeg core deadlocks mid-encode; VP9 crashes the wasm heap where VP8 survives. Both are recorded in the source with what was observed, so nobody — including me — spends another afternoon rediscovering them."
+    },
+    {
+      "name": "Prove it against the real thing",
+      "blurb": "A page that loads proves nothing. Quickmini's export was 100% broken while the interface looked perfect, because the failure only appeared once Export was actually clicked. Verification happens against the deployed site, not localhost."
+    }
+  ]
+}

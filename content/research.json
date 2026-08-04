@@ -1,0 +1,57 @@
+{
+  "items": [
+    {
+      "name": "AI and data analytics for water science",
+      "year": "Now",
+      "status": "current",
+      "blurb": "My work as a Research Fellow at Western Sydney University. Water is a domain where a model is only useful if the people who know the catchment can interrogate it — which makes it a good test of whether an AI tool is genuinely trustworthy or merely confident.",
+      "tags": [
+        "AI",
+        "Data analytics",
+        "Water science",
+        "Western Sydney University"
+      ],
+      "links": []
+    },
+    {
+      "name": "Australia India Water Centre",
+      "year": "Ongoing",
+      "status": "applied",
+      "blurb": "A bilateral centre hosted at Western Sydney University, connecting research, education and training on water across Australia and India. I rebuilt the Centre's website as a single self-contained page with no build step or CDN.",
+      "tags": [
+        "Water",
+        "Groundwater",
+        "Bilateral research"
+      ],
+      "links": [
+        {
+          "label": "Centre site",
+          "href": "https://aiwc.org.au/"
+        }
+      ]
+    },
+    {
+      "name": "Learning hard graph instances for Maximum Independent Set",
+      "year": "Ongoing",
+      "status": "research",
+      "blurb": "Deep reinforcement learning with GraphSAGE to automatically discover graph patterns that produce hard instances for Maximum Independent Set solvers. The useful output is not a better solver but a generator of the inputs that make existing ones struggle.",
+      "tags": [
+        "Deep RL",
+        "GraphSAGE",
+        "Combinatorial optimisation"
+      ],
+      "links": []
+    },
+    {
+      "name": "aSwam — adaptive firefighting drone swarm",
+      "year": "Ongoing",
+      "status": "research",
+      "blurb": "A reinforcement learning model for a drone swarm that coordinates to fight spreading fires, where the policy has to adapt as the fire front changes rather than follow a fixed assignment.",
+      "tags": [
+        "Multi-agent RL",
+        "Simulation"
+      ],
+      "links": []
+    }
+  ]
+}

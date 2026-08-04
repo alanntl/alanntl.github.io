@@ -1,7 +1,7 @@
 # Sveltia CMS content model for alanntl.github.io
-# Everything the site renders lives in one JSON file, so one save = one
-# commit. The site fetches content/site.json at load and falls back to a
-# built-in copy when offline.
+# One page per file: each site section is its own editor page, one save is
+# one commit. The site fetches these JSONs at load; /?preview polls the raw
+# repo copies so a save shows up in seconds, before Pages even builds.
 
 backend:
   name: github
@@ -13,25 +13,61 @@ display_url: https://alanntl.github.io
 media_folder: assets
 public_folder: assets
 
-collections:
-  - name: site
-    label: Site content
-    files:
-      - name: content
-        label: Everything on the site
-        file: content/site.json
-        fields:
-          - name: home
-            label: Home
-            widget: object
-            fields:
-              - name: heroLede
-                label: Hero paragraph
-                widget: text
-                hint: The paragraph under the big headline. The headline itself lives in code.
+editor:
+  preview: true
 
-          - name: projects
+collections:
+  - name: pages
+    label: Site pages
+    editor:
+      preview: true
+    files:
+      - name: structure
+        label: "Structure — sections & headline"
+        file: content/structure.json
+        fields:
+          - name: sections
+            label: Sections
+            label_singular: Section
+            widget: list
+            summary: "{{fields.label}}{{fields.hidden | ternary(' (hidden)','')}}"
+            hint: >-
+              Rename, reorder or hide the site's sections. Order here is the
+              order in the nav and on the hydrograph. Sections are panels
+              that exist in the site's code — you can't create a brand-new
+              one from here.
+            fields:
+              - name: id
+                label: Panel
+                widget: select
+                options: [home, work, projects, writing, research, contact]
+              - {name: label, label: Shown label, widget: string}
+              - {name: hidden, label: Hidden, widget: boolean, required: false, default: false}
+          - name: headline
+            label: Headline
+            widget: object
+            hint: The three stacked lines of the big headline on Home.
+            fields:
+              - {name: line1, label: Line 1, widget: string}
+              - {name: line2, label: Line 2, widget: string}
+              - {name: line3, label: "Line 3 (accent colour)", widget: string}
+
+      - name: home
+        label: Home
+        file: content/home.json
+        fields:
+          - name: heroLede
+            label: Hero paragraph
+            widget: text
+            hint: The paragraph under the big headline.
+
+      - name: projects
+        label: Projects
+        file: content/projects.json
+        fields:
+          - name: items
             label: Projects
+            label_singular: Project
             widget: list
             summary: "{{fields.name}} ({{fields.status}})"
             fields:
@@ -56,8 +92,13 @@ collections:
                   - {name: label, label: Label, widget: string}
                   - {name: href, label: URL, widget: string}
 
-          - name: writing
-            label: Writing
+      - name: writing
+        label: Writing
+        file: content/writing.json
+        fields:
+          - name: items
+            label: Notes
+            label_singular: Note
             widget: list
             required: false
             default: []
@@ -82,8 +123,13 @@ collections:
                   - {name: label, label: Label, widget: string}
                   - {name: href, label: URL, widget: string}
 
-          - name: research
-            label: Research
+      - name: research
+        label: Research
+        file: content/research.json
+        fields:
+          - name: items
+            label: Research entries
+            label_singular: Entry
             widget: list
             summary: "{{fields.name}}"
             fields:
@@ -106,8 +152,13 @@ collections:
                   - {name: label, label: Label, widget: string}
                   - {name: href, label: URL, widget: string}
 
-          - name: background
-            label: Background (fields worked in)
+      - name: background
+        label: Background
+        file: content/background.json
+        fields:
+          - name: fields
+            label: Fields worked in
+            label_singular: Field
             widget: list
             summary: "{{fields.field}} — {{fields.when}}"
             fields:
@@ -115,17 +166,22 @@ collections:
               - {name: when, label: When, widget: string}
               - {name: blurb, label: Blurb, widget: text}
               - {name: current, label: Current, widget: boolean, required: false, default: false}
-
-          - name: principles
+          - name: rules
             label: Working rules
+            label_singular: Rule
             widget: list
             summary: "{{fields.name}}"
             fields:
               - {name: name, label: Rule, widget: string}
               - {name: blurb, label: Blurb, widget: text}
 
-          - name: contact
-            label: Contact channels
+      - name: contact
+        label: Contact
+        file: content/contact.json
+        fields:
+          - name: items
+            label: Channels
+            label_singular: Channel
             widget: list
             summary: "{{fields.label}}"
             fields:

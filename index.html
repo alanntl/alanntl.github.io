@@ -202,6 +202,10 @@
   .ed-toggle:hover{color:var(--bone)}
   .ed-odds{display:block;margin-top:6px;font-family:var(--mono);font-size:.55rem;letter-spacing:.12em;color:var(--faint)}
   .bar nav .ed-toggle{padding:11px 12px;font-size:.62rem}
+  .preview-badge{position:fixed;z-index:120;left:14px;bottom:14px;padding:7px 12px;
+    background:var(--deeper);border:1px solid var(--line);color:var(--muted);
+    font-family:var(--mono);font-size:.6rem;letter-spacing:.12em;text-transform:uppercase;
+    pointer-events:none}
 
   /* The author, mounted like a plate in a report. height:auto is load-
      bearing: without it the HTML height attribute keeps acting as a fixed
@@ -831,30 +835,95 @@
 
   /* ═══════════════════════════════════════════════════════════════════
      CONTENT SOURCE
-     The live site renders from content/site.json — the file the CMS at
+     The live site renders from the JSONs in content/ — the files the CMS at
      /admin/ edits — so publishing a change never touches this HTML. The
      arrays above remain as the built-in fallback: offline, or opened
      straight from disk, the fetch fails and the site renders from them.
      ═══════════════════════════════════════════════════════════════════ */
 
-  const FALLBACK = {home:null, projects:PROJECTS, writing:WRITING, research:RESEARCH,
-                    background:BACKGROUND, principles:PRINCIPLES, contact:CONTACT};
+  const FALLBACK = {structure:null, home:null, projects:PROJECTS, writing:WRITING,
+                    research:RESEARCH, background:BACKGROUND, principles:PRINCIPLES,
+                    contact:CONTACT};
+
+  /* One JSON per page, so one CMS save is one small commit. */
+  const CONTENT_FILES = ["structure","home","projects","writing","research","background","contact"];
+
+  async function fetchContent(base, bust){
+    const raw = {};
+    await Promise.all(CONTENT_FILES.map(async name => {
+      try{
+        const r = await fetch(base + name + ".json" + (bust ? "?t=" + Date.now() : ""),
+                              {signal: AbortSignal.timeout(6000)});
+        if(r.ok) raw[name] = await r.json();
+      }catch(e){ /* that file falls back */ }
+    }));
+    const C = {...FALLBACK};
+    if(raw.structure) C.structure = raw.structure;
+    if(raw.home) C.home = raw.home;
+    if(raw.projects?.items) C.projects = raw.projects.items;
+    if(raw.writing) C.writing = raw.writing.items || [];
+    if(raw.research?.items) C.research = raw.research.items;
+    if(raw.background?.fields) C.background = raw.background.fields;
+    if(raw.background?.rules) C.principles = raw.background.rules;
+    if(raw.contact?.items) C.contact = raw.contact.items;
+    return C;
+  }
+
+  let SECTIONS_LIVE = SECTIONS;
+  let booted = false;
 
   function boot(C){
+    /* Structure: labels, order and visibility come from content. Ids must
+       match panels that exist in the DOM, and unknown ids are dropped, so
+       a bad edit can never produce a dead nav button. */
+    const known = new Set([...document.querySelectorAll("[data-panel]")].map(p => p.dataset.panel));
+    const wanted = C.structure?.sections?.filter(s => known.has(s.id) && !s.hidden);
+    SECTIONS_LIVE = wanted?.length
+      ? wanted.map((s, i) => ({id:s.id, label:s.label || s.id, tc:String(i).padStart(2, "0")}))
+      : SECTIONS;
+
+    if(C.structure?.headline){
+      const H = C.structure.headline;
+      const ln = document.querySelectorAll(".hero h1 .ln i");
+      if(ln.length === 3 && H.line1 && H.line2 && H.line3){
+        ln[0].textContent = H.line1;
+        ln[1].textContent = H.line2;
+        ln[2].innerHTML = `<em>${esc(H.line3)}</em>`;
+      }
+    }
+
     if(C.home && C.home.heroLede)
       document.getElementById("hero-lede").textContent = C.home.heroLede;
+
+    /* Nav is generated from the live section list, so the rail, the mobile
+       menu and the hydrograph cannot drift apart. Listeners survive the
+       rebuild because navigation is delegated, not per-element. */
+    const active = document.querySelector(".panel:not([hidden])")?.dataset.panel || "home";
+    document.getElementById("rail-nav").innerHTML = SECTIONS_LIVE.map(s =>
+      `<button type="button" role="tab" data-tab="${s.id}" aria-selected="${s.id === active}">
+        <i>${s.tc}</i><span>${esc(s.label)}</span></button>`).join("");
+    document.getElementById("bar-nav").innerHTML = SECTIONS_LIVE.map(s =>
+      `<button type="button" data-tab="${s.id}">${esc(s.label)}<span class="tag">${s.tc}</span></button>`).join("")
+      + `<button type="button" class="ed-toggle"></button>`;
+    document.dispatchEvent(new CustomEvent("navrebuilt"));
 
     renderList("projects-list", C.projects);
     renderList("writing-list", C.writing);
     renderList("research-list", C.research);
 
     /* A section with no entries shows its empty state immediately, rather
-       than only after a search misses. */
+       than only after a search misses — and restores itself when entries
+       arrive, since boot() reruns in preview mode. */
+    const empty = document.getElementById("writing-empty");
+    const search = document.getElementById("writing-search").closest(".search");
     if(!C.writing.length){
-      const empty = document.getElementById("writing-empty");
       empty.textContent = "Nothing published yet";
       empty.hidden = false;
-      document.getElementById("writing-search").closest(".search").hidden = true;
+      search.hidden = true;
+    } else {
+      empty.textContent = "Nothing matches that";
+      empty.hidden = true;
+      search.hidden = false;
     }
 
     document.getElementById("work-body").innerHTML = `
@@ -879,31 +948,39 @@
       </a>`).join("");
 
     drawGauge(C);
+    booted = true;
   }
 
   (async () => {
-    let C = FALLBACK;
-    try{
-      const ctl = new AbortController();
-      const timer = setTimeout(() => ctl.abort(), 5000);
-      const r = await fetch("content/site.json", {signal: ctl.signal});
-      clearTimeout(timer);
-      /* Spread over the fallback so a partial file can never blank a
-         section it doesn't mention. */
-      if(r.ok) C = {...FALLBACK, ...await r.json()};
-    }catch(e){ /* offline or file:// — the fallback carries it */ }
+    const preview = new URLSearchParams(location.search).has("preview");
+    const C = await fetchContent("content/", false);
     boot(C);
+
+    if(!preview) return;
+    /* ── Instant preview ────────────────────────────────────────────────
+       /?preview polls the raw repo copies of the content files, which
+       update within seconds of a CMS save — long before the Pages build
+       lands — and re-renders whenever anything changes. Keep this tab
+       beside the editor. */
+    const RAW = "https://raw.githubusercontent.com/alanntl/alanntl.github.io/alanntl/content/";
+    const badge = document.createElement("div");
+    badge.className = "preview-badge";
+    badge.textContent = "preview · watching the repo";
+    document.body.appendChild(badge);
+    let last = JSON.stringify(C);
+    setInterval(async () => {
+      if(document.hidden) return;
+      try{
+        const next = await fetchContent(RAW, true);
+        const sig = JSON.stringify(next);
+        if(sig !== last){
+          last = sig;
+          boot(next);
+          badge.textContent = "preview · updated " + new Date().toLocaleTimeString();
+        }
+      }catch(e){}
+    }, 4000);
   })();
-
-  /* Nav is generated from SECTIONS, so the rail, the mobile menu and the
-     hydrograph cannot drift out of sync with each other. */
-  document.getElementById("rail-nav").innerHTML = SECTIONS.map(s =>
-    `<button type="button" role="tab" data-tab="${s.id}" aria-selected="${s.id === "home"}">
-      <i>${s.tc}</i><span>${s.label}</span></button>`).join("");
-
-  document.getElementById("bar-nav").innerHTML = SECTIONS.map(s =>
-    `<button type="button" data-tab="${s.id}">${s.label}<span class="tag">${s.tc}</span></button>`).join("")
-    + `<button type="button" class="ed-toggle"></button>`;
 
   /* ═══════════════════════════════════════════════════════════════════
      THE HYDROGRAPH
@@ -919,10 +996,13 @@
     /* boot() may run after a deep link has already switched panels, so the
        current station comes from the live DOM, not from "home". */
     const cur = document.querySelector(".panel:not([hidden])")?.dataset.panel || "home";
+    /* One visible section can't make a chart; hiding the rest via the
+       structure page shouldn't crash the maths. */
+    if(SECTIONS_LIVE.length < 2){ document.getElementById("gauge").innerHTML = ""; return; }
     const W = 760, H = 168, padX = 26, padTop = 16, base = H - 42;
     const peak = Math.max(...Object.values(WEIGHTS));
-    const step = (W - padX * 2) / (SECTIONS.length - 1);
-    const pts = SECTIONS.map((s, i) => ({
+    const step = (W - padX * 2) / (SECTIONS_LIVE.length - 1);
+    const pts = SECTIONS_LIVE.map((s, i) => ({
       s, x: padX + i * step,
       y: base - (WEIGHTS[s.id] / peak) * (base - padTop),
     }));
@@ -963,25 +1043,16 @@
     document.getElementById("gauge-total").textContent =
       Object.values(WEIGHTS).reduce((a, b) => a + b, 0) + " entries";
 
-    /* The trace draws itself on load, like a pen recording a rising level. */
+    /* The trace draws itself on first load, like a pen recording a rising
+       level — but only once; preview re-renders shouldn't replay it. */
     const trace = document.querySelector(".gauge .trace");
-    if(!matchMedia("(prefers-reduced-motion:reduce)").matches){
+    if(!booted && !matchMedia("(prefers-reduced-motion:reduce)").matches){
       const len = trace.getTotalLength();
       trace.style.strokeDasharray = len;
       trace.style.strokeDashoffset = len;
       trace.animate([{strokeDashoffset:len},{strokeDashoffset:0}],
         {duration:2200, delay:700, easing:"cubic-bezier(.22,.68,.28,1)", fill:"forwards"});
     }
-
-    /* Stations render after the top-level [data-tab] wiring has already
-       run, so they wire themselves. showPanel re-queries [data-tab] on
-       every call, so state sync picks them up automatically. */
-    document.querySelectorAll(".gauge .stn").forEach(t => {
-      t.addEventListener("click", () => showPanel(t.dataset.tab));
-      t.addEventListener("keydown", e => {
-        if(e.key === "Enter" || e.key === " "){ e.preventDefault(); showPanel(t.dataset.tab); }
-      });
-    });
   }
 
   /* ═══════════════════════════════════════════════════════════════════
@@ -991,7 +1062,9 @@
      ═══════════════════════════════════════════════════════════════════ */
 
   const panels = [...document.querySelectorAll("[data-panel]")];
-  const names = new Set(SECTIONS.map(s => s.id));
+  /* Valid names come from the DOM, not the section list — a section hidden
+     via the structure page stays deep-linkable, it just leaves the nav. */
+  const names = new Set(panels.map(p => p.dataset.panel));
 
   function showPanel(name, updateHash = true){
     if(!names.has(name)) name = "home";
@@ -1000,22 +1073,28 @@
       const on = String(t.dataset.tab === name);
       t.setAttribute(t.classList.contains("stn") ? "aria-current" : "aria-selected", on);
     });
-    const section = SECTIONS.find(s => s.id === name);
-    document.title = name === "home" ? "Alan Ng" : `${section.label} — Alan Ng`;
+    const section = SECTIONS_LIVE.find(s => s.id === name);
+    document.title = name === "home" ? "Alan Ng" : `${section?.label ?? name} — Alan Ng`;
     if(updateHash) history.replaceState(null, "", "#" + name);
     window.scrollTo({top:0, behavior:"smooth"});
     document.getElementById("bar-menu").removeAttribute("open");
     FIELD.retarget(name);
   }
 
-  document.querySelectorAll("[data-tab]").forEach(t => {
-    t.addEventListener("click", () => showPanel(t.dataset.tab));
-    if(t.classList.contains("stn")) t.addEventListener("keydown", e => {
-      if(e.key === "Enter" || e.key === " "){ e.preventDefault(); showPanel(t.dataset.tab); }
-    });
+  /* Delegated, because the nav and the hydrograph are rebuilt whenever
+     content or structure changes — per-element listeners would be lost on
+     every rebuild. */
+  document.addEventListener("click", e => {
+    const go = e.target.closest("[data-go]");
+    if(go){ e.preventDefault(); showPanel(go.dataset.go); return; }
+    const tab = e.target.closest("[data-tab]");
+    if(tab) showPanel(tab.dataset.tab);
   });
-  document.querySelectorAll("[data-go]").forEach(link =>
-    link.addEventListener("click", e => { e.preventDefault(); showPanel(link.dataset.go); }));
+  document.addEventListener("keydown", e => {
+    if(e.key !== "Enter" && e.key !== " ") return;
+    const stn = e.target.closest(".stn");
+    if(stn){ e.preventDefault(); showPanel(stn.dataset.tab); }
+  });
 
   const resolveHash = () => showPanel(decodeURIComponent(location.hash.slice(1)) || "home", false);
   addEventListener("hashchange", resolveHash);
@@ -1360,8 +1439,9 @@
     arm();
     /* Re-arm after a panel change, once the new panel has laid out. */
     const armLater = () => requestAnimationFrame(() => requestAnimationFrame(arm));
-    document.querySelectorAll("[data-tab],[data-go]").forEach(el =>
-      el.addEventListener("click", armLater));
+    document.addEventListener("click", e => {
+      if(e.target.closest("[data-tab],[data-go]")) armLater();
+    });
     addEventListener("hashchange", armLater);
     document.addEventListener("editionchange", armLater);
   })();
@@ -1465,9 +1545,12 @@
       syncControls();
     }
 
-    document.querySelectorAll(".ed-toggle").forEach(b =>
-      b.addEventListener("click",
-        () => switchTo(styleNow() === "catchment" ? "studio" : "catchment")));
+    /* Delegated: the bar-menu copy of the toggle is rebuilt with the nav. */
+    document.addEventListener("click", e => {
+      if(e.target.closest(".ed-toggle"))
+        switchTo(styleNow() === "catchment" ? "studio" : "catchment");
+    });
+    document.addEventListener("navrebuilt", syncControls);
     syncControls();
   })();
 </script>

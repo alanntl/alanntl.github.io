@@ -59,10 +59,20 @@ rather than applied as decoration:
 ## Editing it — the CMS
 
 **https://alanntl.github.io/admin/** is a [Sveltia CMS](https://github.com/sveltia/sveltia-cms)
-editor (v0.178.0, vendored at `admin/sveltia-cms.js` — no CDN). It edits
-`content/site.json`, which the live site fetches at load; every save is one
-commit to this repo, and the `pages-poke` workflow requests a Pages build on
-every push, so saves go live in a minute or two.
+editor (v0.178.0, vendored at `admin/sveltia-cms.js` — no CDN). Each section
+of the site is its own page in the editor — Structure, Home, Projects,
+Writing, Research, Background, Contact — backed by one JSON each under
+`content/`, so every save is one small commit. The `pages-poke` workflow
+requests a Pages build on every push, so saves go live in a minute or two.
+
+**Structure page:** rename, reorder or hide sections (nav, menu and the
+hydrograph all follow), and edit the three headline lines. Sections are
+panels that exist in the code — the structure page can't create new ones.
+
+**Instant preview:** keep **https://alanntl.github.io/?preview** open beside
+the editor. It polls the raw repo copies of the content files every few
+seconds, so a save appears there within seconds — before the Pages build
+finishes. The editor also has its own field-preview pane while you type.
 
 Signing in, two ways, both serverless:
 
@@ -72,15 +82,14 @@ Signing in, two ways, both serverless:
 - **Work with local repository** — in a Chromium browser, pick your local
   clone; edits write straight to disk and you commit/push yourself. No token.
 
-What's editable: the hero paragraph, Projects, Writing, Research, Background,
-Working rules, and Contact. Structure (sections, the headline, the two
-editions) stays in code. The arrays inside `index.html` remain as an offline
-fallback — the deployed site always renders from `content/site.json`, so
-don't hand-edit the arrays expecting the live site to change.
+The arrays inside `index.html` remain as an offline fallback — the deployed
+site renders from the JSONs under `content/`, so don't hand-edit the arrays
+expecting the live site to change.
 
 ## The content schema
 
-`content/site.json` holds `home.heroLede` plus six lists. Entries in
+`content/` holds one JSON per page: `structure`, `home`, `projects`,
+`writing`, `research`, `background`, `contact`. Entries in
 Projects / Writing / Research look like:
 
 ```json

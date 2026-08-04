@@ -1,0 +1,39 @@
+{
+  "sections": [
+    {
+      "id": "home",
+      "label": "Index",
+      "hidden": false
+    },
+    {
+      "id": "work",
+      "label": "Background",
+      "hidden": false
+    },
+    {
+      "id": "projects",
+      "label": "Projects",
+      "hidden": false
+    },
+    {
+      "id": "writing",
+      "label": "Writing",
+      "hidden": false
+    },
+    {
+      "id": "research",
+      "label": "Research",
+      "hidden": false
+    },
+    {
+      "id": "contact",
+      "label": "Contact",
+      "hidden": false
+    }
+  ],
+  "headline": {
+    "line1": "Different fields.",
+    "line2": "The same question:",
+    "line3": "can you trust it?"
+  }
+}
