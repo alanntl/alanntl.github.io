@@ -11,7 +11,12 @@
   <!-- Sveltia CMS 0.178.0, vendored locally (no CDN) — see admin/config.yml
        for the content model. Sign in with a fine-grained personal access
        token (Contents: read/write on this one repo), or use "Work with
-       Local Repository" to edit a local clone with no token at all. -->
-  <script src="sveltia-cms.js" type="module"></script>
+       Local Repository" to edit a local clone with no token at all.
+
+       A classic script on purpose: this dist auto-initialises only when
+       document.currentScript is set, and module scripts always have it
+       null, so type="module" loads successfully and then silently never
+       mounts the UI. -->
+  <script src="sveltia-cms.js"></script>
 </body>
 </html>
