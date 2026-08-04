@@ -1091,6 +1091,10 @@
     PREVIEWING = preview;
     const C = await fetchContent("content/", false);
     boot(C);
+    /* A deep link to a custom page resolves before its panel exists and
+       falls back to home — re-resolve now that boot has built the panels.
+       Initial load only: preview re-boots must not yank the reader back. */
+    resolveHash();
 
     if(!preview) return;
     /* ── Instant preview ────────────────────────────────────────────────
