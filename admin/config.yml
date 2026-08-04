@@ -1,0 +1,134 @@
+# Sveltia CMS content model for alanntl.github.io
+# Everything the site renders lives in one JSON file, so one save = one
+# commit. The site fetches content/site.json at load and falls back to a
+# built-in copy when offline.
+
+backend:
+  name: github
+  repo: alanntl/alanntl.github.io
+  branch: alanntl
+
+site_url: https://alanntl.github.io
+display_url: https://alanntl.github.io
+media_folder: assets
+public_folder: assets
+
+collections:
+  - name: site
+    label: Site content
+    files:
+      - name: content
+        label: Everything on the site
+        file: content/site.json
+        fields:
+          - name: home
+            label: Home
+            widget: object
+            fields:
+              - name: heroLede
+                label: Hero paragraph
+                widget: text
+                hint: The paragraph under the big headline. The headline itself lives in code.
+
+          - name: projects
+            label: Projects
+            widget: list
+            summary: "{{fields.name}} ({{fields.status}})"
+            fields:
+              - {name: name, label: Name, widget: string}
+              - {name: year, label: Year, widget: string}
+              - {name: status, label: Status, widget: string, hint: "live and current get the accent chip"}
+              - {name: blurb, label: Blurb, widget: text}
+              - name: tags
+                label: Tags
+                widget: list
+                required: false
+                default: []
+                field: {name: tag, label: Tag, widget: string}
+              - name: links
+                label: Links
+                widget: list
+                required: false
+                default: []
+                summary: "{{fields.label}}"
+                hint: The first link becomes the title link.
+                fields:
+                  - {name: label, label: Label, widget: string}
+                  - {name: href, label: URL, widget: string}
+
+          - name: writing
+            label: Writing
+            widget: list
+            required: false
+            default: []
+            summary: "{{fields.name}}"
+            fields:
+              - {name: name, label: Title, widget: string}
+              - {name: year, label: Year, widget: string}
+              - {name: status, label: Status, widget: string}
+              - {name: blurb, label: Blurb, widget: text}
+              - name: tags
+                label: Tags
+                widget: list
+                required: false
+                default: []
+                field: {name: tag, label: Tag, widget: string}
+              - name: links
+                label: Links
+                widget: list
+                required: false
+                default: []
+                fields:
+                  - {name: label, label: Label, widget: string}
+                  - {name: href, label: URL, widget: string}
+
+          - name: research
+            label: Research
+            widget: list
+            summary: "{{fields.name}}"
+            fields:
+              - {name: name, label: Name, widget: string}
+              - {name: year, label: Year, widget: string}
+              - {name: status, label: Status, widget: string}
+              - {name: blurb, label: Blurb, widget: text}
+              - name: tags
+                label: Tags
+                widget: list
+                required: false
+                default: []
+                field: {name: tag, label: Tag, widget: string}
+              - name: links
+                label: Links
+                widget: list
+                required: false
+                default: []
+                fields:
+                  - {name: label, label: Label, widget: string}
+                  - {name: href, label: URL, widget: string}
+
+          - name: background
+            label: Background (fields worked in)
+            widget: list
+            summary: "{{fields.field}} — {{fields.when}}"
+            fields:
+              - {name: field, label: Field, widget: string}
+              - {name: when, label: When, widget: string}
+              - {name: blurb, label: Blurb, widget: text}
+              - {name: current, label: Current, widget: boolean, required: false, default: false}
+
+          - name: principles
+            label: Working rules
+            widget: list
+            summary: "{{fields.name}}"
+            fields:
+              - {name: name, label: Rule, widget: string}
+              - {name: blurb, label: Blurb, widget: text}
+
+          - name: contact
+            label: Contact channels
+            widget: list
+            summary: "{{fields.label}}"
+            fields:
+              - {name: label, label: Label, widget: string}
+              - {name: detail, label: Shown detail, widget: string}
+              - {name: href, label: URL, widget: string}

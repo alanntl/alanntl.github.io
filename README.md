@@ -56,6 +56,28 @@ rather than applied as decoration:
   display grotesque against the same mono in studio. The field only reads
   against deep colour, which is why it belongs to catchment alone.
 
+## Editing it — the CMS
+
+**https://alanntl.github.io/admin/** is a [Sveltia CMS](https://github.com/sveltia/sveltia-cms)
+editor (v0.178.0, vendored at `admin/sveltia-cms.js` — no CDN). It edits
+`content/site.json`, which the live site fetches at load; every save is one
+commit to this repo, and the `pages-poke` workflow requests a Pages build on
+every push, so saves go live in a minute or two.
+
+Signing in, two ways, both serverless:
+
+- **Personal access token** — create a fine-grained PAT scoped to only this
+  repo with *Contents: read and write*, and paste it into the CMS sign-in.
+  Nobody else can edit: the token is yours and stays in your browser.
+- **Work with local repository** — in a Chromium browser, pick your local
+  clone; edits write straight to disk and you commit/push yourself. No token.
+
+What's editable: the hero paragraph, Projects, Writing, Research, Background,
+Working rules, and Contact. Structure (sections, the headline, the two
+editions) stays in code. The arrays inside `index.html` remain as an offline
+fallback — the deployed site always renders from `content/site.json`, so
+don't hand-edit the arrays expecting the live site to change.
+
 ## Editing it
 
 All content lives in the arrays at the top of the `<script>` block. The markup is

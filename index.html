@@ -558,7 +558,7 @@
             <span class="ln"><i>The same question:</i></span>
             <span class="ln"><i><em>can you trust it?</em></i></span>
           </h1>
-          <p>I'm a Research Fellow at Western Sydney University, applying AI and data analytics to water science. Before that: mechanical engineering, software, automation, energy and fintech. What carries across is an interest in tools people can actually check — and in helping them understand complex systems well enough to make better decisions.</p>
+          <p id="hero-lede">I'm a Research Fellow at Western Sydney University, applying AI and data analytics to water science. Before that: mechanical engineering, software, automation, energy and fintech. What carries across is an interest in tools people can actually check — and in helping them understand complex systems well enough to make better decisions.</p>
           <div class="hero-actions">
             <a class="btn solid" href="#research" data-go="research"><span>The research</span></a>
             <a class="btn" href="#projects" data-go="projects"><span>Things I've built</span></a>
@@ -829,39 +829,71 @@
   const renderList = (id, entries) =>
     document.getElementById(id).innerHTML = entries.map(entryHTML).join("");
 
-  renderList("projects-list", PROJECTS);
-  renderList("writing-list", WRITING);
-  renderList("research-list", RESEARCH);
+  /* ═══════════════════════════════════════════════════════════════════
+     CONTENT SOURCE
+     The live site renders from content/site.json — the file the CMS at
+     /admin/ edits — so publishing a change never touches this HTML. The
+     arrays above remain as the built-in fallback: offline, or opened
+     straight from disk, the fetch fails and the site renders from them.
+     ═══════════════════════════════════════════════════════════════════ */
 
-  /* A section with no entries shows its empty state immediately, rather
-     than only after a search misses. */
-  if(!WRITING.length){
-    const empty = document.getElementById("writing-empty");
-    empty.textContent = "Nothing published yet";
-    empty.hidden = false;
-    document.getElementById("writing-search").closest(".search").hidden = true;
+  const FALLBACK = {home:null, projects:PROJECTS, writing:WRITING, research:RESEARCH,
+                    background:BACKGROUND, principles:PRINCIPLES, contact:CONTACT};
+
+  function boot(C){
+    if(C.home && C.home.heroLede)
+      document.getElementById("hero-lede").textContent = C.home.heroLede;
+
+    renderList("projects-list", C.projects);
+    renderList("writing-list", C.writing);
+    renderList("research-list", C.research);
+
+    /* A section with no entries shows its empty state immediately, rather
+       than only after a search misses. */
+    if(!C.writing.length){
+      const empty = document.getElementById("writing-empty");
+      empty.textContent = "Nothing published yet";
+      empty.hidden = false;
+      document.getElementById("writing-search").closest(".search").hidden = true;
+    }
+
+    document.getElementById("work-body").innerHTML = `
+      <div class="split">
+        <div><p class="tag">Fields</p><h2 class="display">Where the work has been.</h2></div>
+        <div><ul class="list">${C.background.map(b => `
+          <li class="item">
+            <h3>${esc(b.field)}</h3>
+            <div class="meta"><span class="chip${b.current ? " live" : ""}">${esc(b.when)}</span></div>
+            <p>${esc(b.blurb)}</p>
+          </li>`).join("")}</ul></div>
+      </div>
+      ${C.principles.map((p, i) => `
+      <div class="split">
+        <div><p class="tag">Rule ${String(i + 1).padStart(2, "0")}</p><h2 class="display">${esc(p.name)}</h2></div>
+        <div class="prose"><p>${esc(p.blurb)}</p></div>
+      </div>`).join("")}`;
+
+    document.getElementById("contact-links").innerHTML = C.contact.map(c => `
+      <a href="${esc(c.href)}"${c.href.startsWith("http") ? ' target="_blank" rel="noreferrer"' : ""}>
+        <strong>${esc(c.label)}</strong><span>${esc(c.detail)}</span>
+      </a>`).join("");
+
+    drawGauge(C);
   }
 
-  document.getElementById("work-body").innerHTML = `
-    <div class="split">
-      <div><p class="tag">Fields</p><h2 class="display">Where the work has been.</h2></div>
-      <div><ul class="list">${BACKGROUND.map(b => `
-        <li class="item">
-          <h3>${esc(b.field)}</h3>
-          <div class="meta"><span class="chip${b.current ? " live" : ""}">${esc(b.when)}</span></div>
-          <p>${esc(b.blurb)}</p>
-        </li>`).join("")}</ul></div>
-    </div>
-    ${PRINCIPLES.map((p, i) => `
-    <div class="split">
-      <div><p class="tag">Rule ${String(i + 1).padStart(2, "0")}</p><h2 class="display">${esc(p.name)}</h2></div>
-      <div class="prose"><p>${esc(p.blurb)}</p></div>
-    </div>`).join("")}`;
-
-  document.getElementById("contact-links").innerHTML = CONTACT.map(c => `
-    <a href="${esc(c.href)}"${c.href.startsWith("http") ? ' target="_blank" rel="noreferrer"' : ""}>
-      <strong>${esc(c.label)}</strong><span>${esc(c.detail)}</span>
-    </a>`).join("");
+  (async () => {
+    let C = FALLBACK;
+    try{
+      const ctl = new AbortController();
+      const timer = setTimeout(() => ctl.abort(), 5000);
+      const r = await fetch("content/site.json", {signal: ctl.signal});
+      clearTimeout(timer);
+      /* Spread over the fallback so a partial file can never blank a
+         section it doesn't mention. */
+      if(r.ok) C = {...FALLBACK, ...await r.json()};
+    }catch(e){ /* offline or file:// — the fallback carries it */ }
+    boot(C);
+  })();
 
   /* Nav is generated from SECTIONS, so the rail, the mobile menu and the
      hydrograph cannot drift out of sync with each other. */
@@ -879,12 +911,14 @@
      keeps an empty section on the chart and clickable.
      ═══════════════════════════════════════════════════════════════════ */
 
-  const WEIGHTS = Object.fromEntries(Object.entries({
-    home: 1, work: BACKGROUND.length + PRINCIPLES.length, projects: PROJECTS.length,
-    writing: WRITING.length, research: RESEARCH.length, contact: CONTACT.length,
-  }).map(([k, v]) => [k, Math.max(1, v)]));
-
-  (function drawGauge(){
+  function drawGauge(C){
+    const WEIGHTS = Object.fromEntries(Object.entries({
+      home: 1, work: C.background.length + C.principles.length, projects: C.projects.length,
+      writing: C.writing.length, research: C.research.length, contact: C.contact.length,
+    }).map(([k, v]) => [k, Math.max(1, v)]));
+    /* boot() may run after a deep link has already switched panels, so the
+       current station comes from the live DOM, not from "home". */
+    const cur = document.querySelector(".panel:not([hidden])")?.dataset.panel || "home";
     const W = 760, H = 168, padX = 26, padTop = 16, base = H - 42;
     const peak = Math.max(...Object.values(WEIGHTS));
     const step = (W - padX * 2) / (SECTIONS.length - 1);
@@ -916,7 +950,7 @@
         <path class="area" d="${d} L${pts[pts.length-1].x},${base} L${pts[0].x},${base} Z"/>
         <path class="trace" d="${d}"/>
         ${pts.map(p => `
-          <g class="stn" data-tab="${p.s.id}" aria-current="${p.s.id === "home"}" role="button"
+          <g class="stn" data-tab="${p.s.id}" aria-current="${p.s.id === cur}" role="button"
              tabindex="0" aria-label="${esc(p.s.label)}, ${WEIGHTS[p.s.id]} entries">
             <line class="stem" x1="${p.x}" y1="${p.y}" x2="${p.x}" y2="${base}"/>
             <text class="val" x="${p.x}" y="${p.y - 13}" text-anchor="middle">${WEIGHTS[p.s.id]}</text>
@@ -938,7 +972,17 @@
       trace.animate([{strokeDashoffset:len},{strokeDashoffset:0}],
         {duration:2200, delay:700, easing:"cubic-bezier(.22,.68,.28,1)", fill:"forwards"});
     }
-  })();
+
+    /* Stations render after the top-level [data-tab] wiring has already
+       run, so they wire themselves. showPanel re-queries [data-tab] on
+       every call, so state sync picks them up automatically. */
+    document.querySelectorAll(".gauge .stn").forEach(t => {
+      t.addEventListener("click", () => showPanel(t.dataset.tab));
+      t.addEventListener("keydown", e => {
+        if(e.key === "Enter" || e.key === " "){ e.preventDefault(); showPanel(t.dataset.tab); }
+      });
+    });
+  }
 
   /* ═══════════════════════════════════════════════════════════════════
      PANEL ENGINE

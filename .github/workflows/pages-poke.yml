@@ -1,0 +1,22 @@
+# This repo's Pages (legacy build) does not reliably rebuild on push — a
+# rebuild has had to be requested explicitly after every deploy. That was
+# tolerable for CLI pushes, but CMS saves commit via the GitHub API and
+# would otherwise never appear on the live site. This workflow pokes the
+# Pages build API on every push so all commits deploy, whoever makes them.
+name: pages-poke
+on:
+  push:
+    branches: [alanntl]
+permissions:
+  pages: write
+  contents: read
+jobs:
+  poke:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Request a Pages build
+        run: |
+          curl -sf -X POST \
+            -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
+            -H "Accept: application/vnd.github+json" \
+            https://api.github.com/repos/${{ github.repository }}/pages/builds

@@ -1,0 +1,208 @@
+{
+  "home": {
+    "heroLede": "I'm a Research Fellow at Western Sydney University, applying AI and data analytics to water science. Before that: mechanical engineering, software, automation, energy and fintech. What carries across is an interest in tools people can actually check — and in helping them understand complex systems well enough to make better decisions."
+  },
+  "projects": [
+    {
+      "name": "Quickmini",
+      "year": "2026",
+      "status": "live",
+      "blurb": "Drop in a video, choose how hard to compress it, optionally cut sections out, export. The whole encode runs in your tab through ffmpeg.wasm — the file never leaves your machine. Trimming and compressing happen in a single ffmpeg pass, and cut footage is never decoded, which took an 11 MB export from 25s down to 5.8s.",
+      "tags": [
+        "ffmpeg.wasm",
+        "Web Workers",
+        "Vanilla JS",
+        "AGPL-3.0"
+      ],
+      "links": [
+        {
+          "label": "Use it",
+          "href": "https://alanntl.github.io/quickmini/"
+        },
+        {
+          "label": "Source",
+          "href": "https://github.com/alanntl/quickmini"
+        }
+      ]
+    },
+    {
+      "name": "Cutaway",
+      "year": "2026",
+      "status": "archived",
+      "blurb": "The first pass at the same problem: mark in and out points on a timeline, keep several sections, export the joined result. Quickmini grew out of it once it became clear that compressing an untouched video was the common case, not trimming.",
+      "tags": [
+        "ffmpeg.wasm",
+        "Vanilla JS"
+      ],
+      "links": []
+    },
+    {
+      "name": "DivideNConquer",
+      "year": "2026",
+      "status": "active",
+      "blurb": "Turns a prompt — an equation, a theorem, a “how does X work” — into an interactive hierarchical knowledge graph you can expand, rearrange and export. KaTeX renders the mathematics fully offline with MathML for screen readers, so it works with no network at all.",
+      "tags": [
+        "React Flow",
+        "KaTeX",
+        "TypeScript"
+      ],
+      "links": []
+    },
+    {
+      "name": "loop-runner",
+      "year": "2026",
+      "status": "active",
+      "blurb": "An agent-agnostic, human-in-the-loop engineering runner. Point it at a git repository: it drafts a plan, you approve it, it implements the change with whichever agent you choose, opens a pull request — and stops. Nothing merges without you.",
+      "tags": [
+        "Agents",
+        "Git",
+        "CLI"
+      ],
+      "links": []
+    },
+    {
+      "name": "Traddy",
+      "year": "2026",
+      "status": "active",
+      "blurb": "A portfolio and trading interface for Interactive Brokers. FastAPI and ib_async talk to IB Gateway; the front end is Vite, React, TypeScript and Tailwind.",
+      "tags": [
+        "FastAPI",
+        "React",
+        "TypeScript",
+        "ib_async"
+      ],
+      "links": []
+    },
+    {
+      "name": "AIWC website",
+      "year": "2026",
+      "status": "live",
+      "blurb": "Rebuilt the Australia India Water Centre's site as a single self-contained HTML file — no framework, no build step, no CDN — served straight from a GitHub Pages branch. Eight sections, a client-side search over every profile, and a full local copy of the original media.",
+      "tags": [
+        "Static HTML",
+        "GitHub Pages",
+        "No build"
+      ],
+      "links": [
+        {
+          "label": "Source",
+          "href": "https://github.com/marvi-groundwater/aiwc"
+        }
+      ]
+    }
+  ],
+  "writing": [],
+  "research": [
+    {
+      "name": "AI and data analytics for water science",
+      "year": "Now",
+      "status": "current",
+      "blurb": "My work as a Research Fellow at Western Sydney University. Water is a domain where a model is only useful if the people who know the catchment can interrogate it — which makes it a good test of whether an AI tool is genuinely trustworthy or merely confident.",
+      "tags": [
+        "AI",
+        "Data analytics",
+        "Water science",
+        "Western Sydney University"
+      ],
+      "links": []
+    },
+    {
+      "name": "Australia India Water Centre",
+      "year": "Ongoing",
+      "status": "applied",
+      "blurb": "A bilateral centre hosted at Western Sydney University, connecting research, education and training on water across Australia and India. I rebuilt the Centre's website as a single self-contained page with no build step or CDN.",
+      "tags": [
+        "Water",
+        "Groundwater",
+        "Bilateral research"
+      ],
+      "links": [
+        {
+          "label": "Centre site",
+          "href": "https://aiwc.org.au/"
+        }
+      ]
+    },
+    {
+      "name": "Learning hard graph instances for Maximum Independent Set",
+      "year": "Ongoing",
+      "status": "research",
+      "blurb": "Deep reinforcement learning with GraphSAGE to automatically discover graph patterns that produce hard instances for Maximum Independent Set solvers. The useful output is not a better solver but a generator of the inputs that make existing ones struggle.",
+      "tags": [
+        "Deep RL",
+        "GraphSAGE",
+        "Combinatorial optimisation"
+      ],
+      "links": []
+    },
+    {
+      "name": "aSwam — adaptive firefighting drone swarm",
+      "year": "Ongoing",
+      "status": "research",
+      "blurb": "A reinforcement learning model for a drone swarm that coordinates to fight spreading fires, where the policy has to adapt as the fire front changes rather than follow a fixed assignment.",
+      "tags": [
+        "Multi-agent RL",
+        "Simulation"
+      ],
+      "links": []
+    }
+  ],
+  "background": [
+    {
+      "field": "Water science",
+      "when": "Now",
+      "current": true,
+      "blurb": "Research Fellow at Western Sydney University, applying AI and data analytics to water science. Sydney, Australia."
+    },
+    {
+      "field": "Software systems",
+      "when": "Throughout",
+      "blurb": "LLM agents, cloud systems and browser-native tools. Most of the Projects page comes from here."
+    },
+    {
+      "field": "Fintech",
+      "when": "Earlier",
+      "blurb": "Financial systems and market data — the origin of Traddy, a portfolio and trading interface for Interactive Brokers."
+    },
+    {
+      "field": "Energy & automation",
+      "when": "Earlier",
+      "blurb": "Industrial and energy systems, where a model being wrong has physical consequences rather than merely inconvenient ones."
+    },
+    {
+      "field": "Mechanical engineering",
+      "when": "Where it started",
+      "blurb": "The first discipline, and the reason I tend to want a model I can take apart and check rather than one I have to take on faith."
+    }
+  ],
+  "principles": [
+    {
+      "name": "Do the work once",
+      "blurb": "Quickmini trims and compresses in a single ffmpeg pass. Two passes would decode and re-encode the video twice and lose quality to a second round of compression, for no gain. Most speed comes from removing a step, not tuning one."
+    },
+    {
+      "name": "Silently wrong beats slow — never",
+      "blurb": "Stream copy made trims about 20× faster, but cuts can only land on keyframes: a requested 7.0s trim exported 18.8s with no error. It was removed. An output that is quietly incorrect costs far more than one that takes 25 seconds."
+    },
+    {
+      "name": "Write down what didn't work",
+      "blurb": "The multithreaded ffmpeg core deadlocks mid-encode; VP9 crashes the wasm heap where VP8 survives. Both are recorded in the source with what was observed, so nobody — including me — spends another afternoon rediscovering them."
+    },
+    {
+      "name": "Prove it against the real thing",
+      "blurb": "A page that loads proves nothing. Quickmini's export was 100% broken while the interface looked perfect, because the failure only appeared once Export was actually clicked. Verification happens against the deployed site, not localhost."
+    }
+  ],
+  "contact": [
+    {
+      "label": "LinkedIn",
+      "detail": "linkedin.com/in/alan-n-182ab9210",
+      "href": "https://www.linkedin.com/in/alan-n-182ab9210"
+    },
+    {
+      "label": "GitHub",
+      "detail": "github.com/alanntl",
+      "href": "https://github.com/alanntl"
+    }
+  ]
+}
