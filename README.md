@@ -78,37 +78,29 @@ editions) stays in code. The arrays inside `index.html` remain as an offline
 fallback — the deployed site always renders from `content/site.json`, so
 don't hand-edit the arrays expecting the live site to change.
 
-## Editing it
+## The content schema
 
-All content lives in the arrays at the top of the `<script>` block. The markup is
-generated from them, so you never touch HTML to add an entry.
+`content/site.json` holds `home.heroLede` plus six lists. Entries in
+Projects / Writing / Research look like:
 
-| Array        | Drives                                     |
-| ------------ | ------------------------------------------ |
-| `SECTIONS`   | The rail, the mobile menu and the hydrograph |
-| `PROJECTS`   | Projects panel                             |
-| `WRITING`    | Writing panel (currently empty)            |
-| `RESEARCH`   | Research panel                             |
-| `BACKGROUND` | The fields list on the Background panel     |
-| `PRINCIPLES` | The working rules on the Background panel   |
-| `CONTACT`    | Contact panel                              |
-
-An entry looks like this:
-
-```js
+```json
 {
-  name: "Quickmini",
-  year: "2026",
-  status: "live",            // "live" and "current" get the accent chip
-  blurb: "One paragraph.",
-  tags: ["ffmpeg.wasm"],
-  links: [{label: "Use it", href: "https://…"}],   // first link titles the entry
+  "name": "Quickmini",
+  "year": "2026",
+  "status": "live",
+  "blurb": "One paragraph.",
+  "tags": ["ffmpeg.wasm"],
+  "links": [{"label": "Use it", "href": "https://…"}]
 }
 ```
 
-Adding a section means adding one object to `SECTIONS` and one matching
-`<section class="panel" data-panel="…">`. The rail, the mobile menu and the
-hydrograph all build themselves from `SECTIONS`, so they can't drift apart.
+`status` of `live` or `current` gets the accent chip; the first link becomes
+the title link. Background rows are `{field, when, blurb, current}`, working
+rules are `{name, blurb}`, contact rows are `{label, detail, href}`. The CMS
+enforces all of this, so the JSON only needs hand-editing if you prefer git.
+
+Adding a whole *section* is still a code change: one object in `SECTIONS`,
+one matching `<section class="panel">`, and its list wiring in `boot()`.
 
 ## The flow field
 
