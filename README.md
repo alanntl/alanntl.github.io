@@ -14,21 +14,16 @@ The same DOM, the same content arrays, two complete visual systems scoped by
 
 - **CATCHMENT** — the animated night piece: dark ground, serif, the streamline
   field, the overture, film grain.
-- **SURVEY** — the map sheet: warm paper under a full-page **contour plot of
-  the same ψ** (marching squares, brown linework, every 4th line an index
-  contour), an engineering title block, the hydrograph on blue-gridded
-  field-book paper, italic-serif water labels for the accent moments, folio
-  stamps, dotted ledger leaders — and no animation at all, because a report
-  is not performed, it is issued. The level sets of a stream function *are*
-  the streamlines of its flow, so the two editions render the same object
-  in two notations.
+- **STUDIO** — the daylight cut: white ground, display-size grotesque, one
+  electric blue, silky motion — masked type entrances, scroll reveals, and
+  buttons that lean toward the cursor. Award-site energy, zero web fonts.
 
 Which edition a visit opens with is a draw made in `<head>` before first paint.
 The odds are learned **per browser** from dwell time (visible seconds, capped at
 600 s/session, sub-second fragments ignored):
 
 ```
-p(catchment) = mean dwell catchment / (mean catchment + mean survey)
+p(catchment) = mean dwell catchment / (mean catchment + mean studio)
 clamped to [0.25, 0.75] — a fresh browser is exactly 50:50
 ```
 
@@ -38,7 +33,7 @@ early lucky streak can lock the loser out. Everything lives in `localStorage`
 (`edition-bandit-v1`) — there is no server, so each browser learns its own odds
 rather than pooling across visitors.
 
-Practical bits: `?edition=catchment|survey` forces one; the draw is pinned per
+Practical bits: `?edition=catchment|studio` forces one; the draw is pinned per
 tab (`sessionStorage`) so reloads mid-read don't reshuffle; a visible toggle
 with the live odds sits in the rail/menu — a site whose thesis is *can you
 trust it* should not hide that it is running an experiment on the reader. The
