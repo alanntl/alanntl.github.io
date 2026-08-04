@@ -10,8 +10,54 @@
   <meta property="og:description" content="Research Fellow at Western Sydney University, applying AI and data analytics to water science.">
   <meta property="og:type" content="website">
   <meta property="og:url" content="https://alanntl.github.io/">
+  <meta property="og:image" content="https://alanntl.github.io/assets/portrait.jpg">
+  <meta property="og:image:width" content="400">
+  <meta property="og:image:height" content="400">
   <title>Alan Ng</title>
   <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%230a0f0e'/%3E%3Cpath d='M3 20c4-6 6 4 10-2s6 4 10-3 6 2 6 2' stroke='%23e8c46a' stroke-width='1.6' fill='none'/%3E%3Cpath d='M3 25c4-6 6 4 10-2s6 4 10-3' stroke='%23ece5d8' stroke-opacity='.45' stroke-width='1.2' fill='none'/%3E%3C/svg%3E">
+  <script>
+  /* ─── The edition draw ─────────────────────────────────────────────
+     One document, two editions: CATCHMENT (the animated night piece)
+     and SURVEY (the printed daylight record). This runs before first
+     paint so the page never flashes the other edition.
+
+     The odds are learned per browser from dwell time — the EDITIONS
+     module at the end of the file does the measuring. The rule:
+
+       p(catchment) = mean dwell catchment / (mean catchment + mean survey)
+       clamped to [0.25, 0.75]
+
+     A fresh browser is exactly 50:50. The floor keeps the losing
+     edition in rotation forever. ?edition=catchment|survey forces one,
+     and the first draw is pinned per tab so reloads don't reshuffle
+     mid-read. */
+  (function(){
+    var qs = new URLSearchParams(location.search).get("edition");
+    var forced = qs === "catchment" || qs === "survey" ? qs : null;
+    var pin = null; try{ pin = sessionStorage.getItem("edition-pin"); }catch(e){}
+    var p = 0.5;
+    try{
+      var d = JSON.parse(localStorage.getItem("edition-bandit-v1") || "null");
+      if(d && d.s){
+        var c = d.s.catchment, s = d.s.survey;
+        var mc = c && c.visits ? c.total / c.visits : null;
+        var ms = s && s.visits ? s.total / s.visits : null;
+        if(mc != null && ms != null && mc + ms > 0)
+          p = Math.min(.75, Math.max(.25, mc / (mc + ms)));
+      }
+    }catch(e){}
+    var style = forced || pin || (Math.random() < p ? "catchment" : "survey");
+    document.documentElement.dataset.style = style;
+    try{ sessionStorage.setItem("edition-pin", style); }catch(e){}
+    if(style === "survey"){
+      var m1 = document.querySelector('meta[name="theme-color"]');
+      var m2 = document.querySelector('meta[name="color-scheme"]');
+      if(m1) m1.content = "#f5f3ec";
+      if(m2) m2.content = "light";
+    }
+    window.__EDITION = {style: style, p: p, forced: !!forced};
+  })();
+  </script>
   <style>
   /* ══════════════════════════════════════════════════════════════════
      CATCHMENT
@@ -144,6 +190,22 @@
 
   .rail-note{margin-top:auto;font-family:var(--mono);font-size:.63rem;line-height:1.85;color:var(--faint)}
   .rail-note b{display:block;color:var(--muted);font-weight:400;letter-spacing:.08em}
+
+  /* Edition switch + the live odds readout. The odds are shown on purpose:
+     a site whose thesis is "can you trust it" should not hide the fact that
+     it is running an experiment on you. */
+  .ed-wrap{display:block;margin-top:16px}
+  .ed-toggle{display:block;padding:0;border:0;background:none;cursor:pointer;
+    font-family:var(--mono);font-size:.6rem;letter-spacing:.16em;text-transform:uppercase;
+    color:var(--mark);text-decoration:underline;text-underline-offset:3px}
+  .ed-toggle:hover{color:var(--bone)}
+  .ed-odds{display:block;margin-top:6px;font-family:var(--mono);font-size:.55rem;letter-spacing:.12em;color:var(--faint)}
+  .bar nav .ed-toggle{padding:11px 12px;font-size:.62rem}
+
+  /* The author, mounted like a plate in a report. */
+  .portrait{margin:26px 0 0;max-width:170px}
+  .portrait img{width:100%;border:1px solid var(--line);padding:7px;background:var(--deeper);filter:grayscale(.28) contrast(1.03)}
+  .portrait figcaption{margin-top:9px;font-family:var(--mono);font-size:.57rem;letter-spacing:.18em;text-transform:uppercase;color:var(--faint)}
 
   /* ─── Mobile bar ───────────────────────────────────────────────── */
   .bar{display:none;position:sticky;top:0;z-index:40;align-items:center;justify-content:space-between;
@@ -355,6 +417,97 @@
     body{background:#fff;color:#000}
     .display,h1,h2,h3{color:#000}
   }
+
+  /* ══════════════════════════════════════════════════════════════════
+     SURVEY EDITION
+     The same document, printed. Everything below is scoped to
+     html[data-style="survey"] and re-reads the identical DOM as a
+     daylight technical record: paper ground, grotesque type, hairline
+     rules, dotted leaders, a folio stamp per sheet — the gauging ledger
+     to the catchment edition's night river. No canvas, no grain, no
+     overture: it opens already finished, because a report is not
+     performed, it is issued.
+
+     Both editions share every content array and every line of markup;
+     which one a visit opens with is decided by the draw in <head>. */
+  html[data-style="survey"]{
+    color-scheme:light;
+    --deep:#f5f3ec; --deeper:#ebe7dc; --bone:#191712; --muted:#635e4e;
+    --faint:#9a947f; --mark:#2148c0;
+    --line:rgba(25,23,18,.24); --line-soft:rgba(25,23,18,.10);
+    /* Same two roles, a different pair: the "serif" slot is the edition's
+       language face, here a grotesque. The mono stays for data. */
+    --serif:ui-sans-serif,-apple-system,BlinkMacSystemFont,"Helvetica Neue",Arial,sans-serif;
+  }
+  /* Grotesque x-height runs larger than the old-style serif's — the exact
+     inverse of the 16→17.5px bump the serif needed. */
+  html[data-style="survey"] body{font-size:16px}
+
+  html[data-style="survey"] #flow,
+  html[data-style="survey"] .veil,
+  html[data-style="survey"] .grain,
+  html[data-style="survey"] .curtain{display:none}
+
+  /* Nothing is performed: the overture and every entrance play at t=0. */
+  html[data-style="survey"] .hero .tc,
+  html[data-style="survey"] .hero p,
+  html[data-style="survey"] .hero-actions{animation:none;opacity:1}
+  html[data-style="survey"] .hero h1 .ln i{animation:none;transform:none}
+  html[data-style="survey"] .panel > *{animation:none}
+  html[data-style="survey"] .rv{opacity:1;transform:none;clip-path:none;transition:none}
+  html[data-style="survey"] .item,
+  html[data-style="survey"] .contact-links a{transition:none}
+  html[data-style="survey"] .item:hover{padding-left:0}
+  html[data-style="survey"] .contact-links a:hover{padding-left:0}
+
+  html[data-style="survey"] .display{font-weight:660;letter-spacing:-.034em;line-height:1.02}
+  html[data-style="survey"] .hero h1 em{font-style:normal;color:var(--mark);
+    text-decoration:underline;text-decoration-thickness:3px;text-underline-offset:.14em}
+
+  /* The fixed rail becomes a masthead, with a survey ruler under it. */
+  html[data-style="survey"] .rail{position:sticky;inset:auto;top:0;z-index:40;width:auto;
+    flex-direction:row;align-items:baseline;gap:30px;padding:16px 30px 14px;
+    background:var(--deep);border-right:0;border-bottom:2px solid var(--bone);backdrop-filter:none}
+  html[data-style="survey"] .rail::after{content:"";position:absolute;left:0;right:0;bottom:-9px;height:8px;
+    background:
+      repeating-linear-gradient(90deg,var(--bone) 0 1px,transparent 1px 50px),
+      repeating-linear-gradient(90deg,var(--line) 0 1px,transparent 1px 10px);
+    background-size:100% 8px,100% 4px;background-position:left bottom;background-repeat:no-repeat}
+  html[data-style="survey"] .mark-a b{font-size:1.15rem;font-weight:700;letter-spacing:-.02em}
+  html[data-style="survey"] .nav{display:flex;gap:20px;margin:0}
+  html[data-style="survey"] .nav button{display:flex;align-items:baseline;gap:7px;padding:2px 0}
+  html[data-style="survey"] .nav button span{font-size:.9rem;font-weight:600;letter-spacing:.01em}
+  html[data-style="survey"] .nav button::after{left:0;right:100%;bottom:-4px;height:2px;background:var(--mark);opacity:1}
+  html[data-style="survey"] .rail-note{margin:0 0 0 auto;display:flex;align-items:baseline;gap:14px}
+  html[data-style="survey"] .rail-note .addr{display:none}
+  html[data-style="survey"] .ed-wrap{margin:0;text-align:right}
+  html[data-style="survey"] .page{margin-left:0}
+
+  html[data-style="survey"] .bar{background:var(--deep);border-bottom:2px solid var(--bone)}
+  html[data-style="survey"] .bar summary{border:2px solid var(--bone);font-weight:700}
+  html[data-style="survey"] .bar details[open] summary{background:var(--mark);border-color:var(--mark);color:#fff}
+  html[data-style="survey"] .bar nav{background:var(--deep);border:2px solid var(--bone);box-shadow:6px 6px 0 rgba(25,23,18,.14)}
+
+  /* The ghost numeral becomes a folio stamp. */
+  html[data-style="survey"] .head{padding:9vh 0 5vh}
+  html[data-style="survey"] .head::before{content:"SHEET " attr(data-numeral);left:auto;right:6vw;top:9vh;
+    font:600 .63rem/1 var(--mono);letter-spacing:.22em;color:var(--mark);
+    border:2px solid var(--mark);padding:8px 12px;opacity:1;transform:rotate(-1.6deg);z-index:0}
+
+  html[data-style="survey"] .gauge::before{content:none}
+  html[data-style="survey"] #wash stop{stop-color:#191712}
+
+  /* Ledger rows: dotted leaders running from title to record. */
+  html[data-style="survey"] .item{padding:22px 0}
+  html[data-style="survey"] .item h3{display:flex;align-items:baseline;gap:12px;font-size:1.18rem;font-weight:650;letter-spacing:-.015em}
+  html[data-style="survey"] .item h3::after{content:"";flex:1;min-width:40px;border-bottom:2px dotted var(--faint);transform:translateY(-4px)}
+  html[data-style="survey"] .split h2{font-weight:650;letter-spacing:-.03em}
+  html[data-style="survey"] .chip{border-radius:0}
+  html[data-style="survey"] .btn{border-width:2px}
+  html[data-style="survey"] .search{border-bottom:2px solid var(--bone)}
+
+  html[data-style="survey"] .portrait img{border:2px solid var(--bone);padding:0;background:none;filter:none}
+  html[data-style="survey"] .portrait figcaption{color:var(--muted)}
   </style>
 </head>
 <body>
@@ -370,8 +523,9 @@
     <a class="mark-a" href="#home" data-go="home"><b>Alan Ng</b><span>Researcher · Sydney</span></a>
     <nav class="nav" role="tablist" id="rail-nav"></nav>
     <div class="rail-note">
-      <b>Sydney, Australia</b>
-      Research Fellow<br>Western Sydney University
+      <span class="addr"><b>Sydney, Australia</b>
+      Research Fellow<br>Western Sydney University</span>
+      <span class="ed-wrap"><button type="button" class="ed-toggle"></button><span class="ed-odds"></span></span>
     </div>
   </aside>
 
@@ -414,7 +568,10 @@
         </div>
 
         <div class="split">
-          <div><p class="tag">Position</p><h2 class="display">What I'm doing now.</h2></div>
+          <div>
+            <p class="tag">Position</p><h2 class="display">What I'm doing now.</h2>
+            <figure class="portrait"><img src="assets/portrait.jpg" alt="Alan Ng" width="400" height="400" loading="lazy"><figcaption>Fig. 01 — the author</figcaption></figure>
+          </div>
           <div class="prose">
             <p><strong>Research Fellow, Western Sydney University.</strong> Based in Sydney, Australia, applying AI and data analytics to water science — the kind of problem where the modelling only matters if the people who know the catchment can interrogate the result.</p>
             <p>Alongside that I keep building small tools: LLM agents, cloud systems, mathematical modelling, and browser-native software that does its work on your own machine rather than someone else's server.</p>
@@ -701,7 +858,8 @@
       <i>${s.tc}</i><span>${s.label}</span></button>`).join("");
 
   document.getElementById("bar-nav").innerHTML = SECTIONS.map(s =>
-    `<button type="button" data-tab="${s.id}">${s.label}<span class="tag">${s.tc}</span></button>`).join("");
+    `<button type="button" data-tab="${s.id}">${s.label}<span class="tag">${s.tc}</span></button>`).join("")
+    + `<button type="button" class="ed-toggle"></button>`;
 
   /* ═══════════════════════════════════════════════════════════════════
      THE HYDROGRAPH
@@ -854,6 +1012,11 @@
     }
 
     let W = 0, H = 0, dpr = 1, parts = [], raf = 0, t = 0, running = false;
+    /* The field belongs to the catchment edition. In the survey edition the
+       canvas is display:none and this stays false, so fit() and start()
+       no-op and the module costs nothing — until the visitor toggles over,
+       when ensure() flips it on. */
+    let active = document.documentElement.dataset.style !== "survey";
     /* drift is px advanced per frame. Below ~1px the segments are sub-pixel
        and antialiasing dissolves them, which is why the field was invisible
        at 0.78. 2.0 draws a legible line and still reads as a slow current. */
@@ -896,6 +1059,7 @@
           therefore grow-only: a shrinking viewport is ignored, so the canvas
           stays put and the drawing survives scrolling. */
     function fit(){
+      if(!active) return false;
       const w = Math.round(innerWidth), h = Math.round(innerHeight);
       if(w < 2 || h < 2) return false;
       const targetH = Math.max(h, cssH);
@@ -1045,7 +1209,7 @@
       raf = requestAnimationFrame(frame);
     }
 
-    function start(){ if(!running && !still.matches){ running = true; raf = requestAnimationFrame(frame); } }
+    function start(){ if(!running && !still.matches && active){ running = true; raf = requestAnimationFrame(frame); } }
     function stop(){ running = false; cancelAnimationFrame(raf); }
 
     addEventListener("resize", fit, {passive:true});
@@ -1073,11 +1237,17 @@
          navigation instead of ignoring it — and steps back on the panels
          people actually read. */
       retarget(name){
+        if(!active) return;
         const map = {home:0.0016, work:0.0022, projects:0.0029, writing:0.0013, research:0.0019, contact:0.0011};
         target = map[name] ?? 0.0016;
         cv.style.opacity = name === "home" ? "1" : "0.28";
         surge = 3.4;   /* the current quickens on arrival, then settles */
       },
+      /* Edition switching. ensure() is idempotent; the first call after a
+         switch to catchment sizes the canvas (it was display:none, so the
+         load-time fit was refused) and primes the drawing synchronously. */
+      ensure(){ if(active){ start(); return; } active = true; fit(); start(); },
+      halt(){ active = false; stop(); },
     };
   })();
 
@@ -1115,6 +1285,10 @@
        the failure mode of a reveal system is invisible content, and that is
        worse than no animation at all. */
     function arm(){
+      /* Reveals belong to the catchment edition; the survey is issued,
+         not performed. Checked at arm time so a mid-session toggle to
+         catchment starts arming again from wherever the reader is. */
+      if(document.documentElement.dataset.style === "survey") return;
       let n = 0;
       for(const el of targets()){
         if(el.dataset.armed) continue;
@@ -1132,6 +1306,91 @@
     document.querySelectorAll("[data-tab],[data-go]").forEach(el =>
       el.addEventListener("click", armLater));
     addEventListener("hashchange", armLater);
+    document.addEventListener("editionchange", armLater);
+  })();
+
+  /* ═══════════════════════════════════════════════════════════════════
+     EDITIONS
+     The measuring half of the edition draw in <head>. Dwell — seconds
+     with the page actually visible — is attributed to whichever edition
+     is on screen and folded into that edition's running mean. Next
+     visit's draw:
+
+       p(catchment) = mean_c / (mean_c + mean_s), clamped to [0.25, 0.75]
+
+     Which converges on the true dwell share: p* = μc/(μc+μs). Two
+     properties worth knowing. The floor binds only when one edition
+     holds attention more than 3× longer (μs > 3μc ⟺ p < 0.25). And the
+     floor is what keeps the estimate alive: with p ≥ 25% both editions
+     keep being sampled, so their means keep updating and no early lucky
+     streak can lock the loser out permanently.
+
+     All storage is localStorage — there is no server, so each browser
+     learns its own odds rather than pooling across visitors.
+     ═══════════════════════════════════════════════════════════════════ */
+  (() => {
+    const KEY = "edition-bandit-v1";
+    const CAP = 600;                 /* max seconds one session can credit */
+    const SID = Math.random().toString(36).slice(2);
+    const styleNow = () => document.documentElement.dataset.style || "catchment";
+
+    let data;
+    try{ data = JSON.parse(localStorage.getItem(KEY) || "null"); }catch(e){ data = null; }
+    if(!data || !data.s || !data.s.catchment || !data.s.survey)
+      data = {s:{catchment:{total:0, visits:0, sid:null}, survey:{total:0, visits:0, sid:null}}};
+
+    let t0 = performance.now();
+    const sess = {catchment:0, survey:0};
+
+    /* Accumulate-and-reset: safe to call any number of times. Runs on
+       hide, on unload and on toggle. Sub-second fragments are noise, and
+       CAP stops a tab left open overnight from counting as devotion. */
+    function flush(){
+      const cur = styleNow(), rec = data.s[cur];
+      const dt = (performance.now() - t0) / 1000; t0 = performance.now();
+      if(!rec || dt < 1) return;
+      const add = Math.min(dt, Math.max(0, CAP - sess[cur]));
+      if(add <= 0) return;
+      sess[cur] += add; rec.total += add;
+      if(rec.sid !== SID){ rec.sid = SID; rec.visits += 1; }
+      try{ localStorage.setItem(KEY, JSON.stringify(data)); }catch(e){}
+    }
+    addEventListener("pagehide", flush);
+    document.addEventListener("visibilitychange",
+      () => document.hidden ? flush() : (t0 = performance.now()));
+
+    function pCatchment(){
+      const c = data.s.catchment, s = data.s.survey;
+      const mc = c.visits ? c.total / c.visits : null;
+      const ms = s.visits ? s.total / s.visits : null;
+      if(mc == null || ms == null || mc + ms <= 0) return 0.5;
+      return Math.min(0.75, Math.max(0.25, mc / (mc + ms)));
+    }
+
+    function syncControls(){
+      const other = styleNow() === "catchment" ? "survey" : "catchment";
+      const p = Math.round(pCatchment() * 100);
+      document.querySelectorAll(".ed-toggle").forEach(b =>
+        b.textContent = `View the ${other} edition`);
+      document.querySelectorAll(".ed-odds").forEach(e => {
+        e.textContent = `draw ${p}:${100 - p}`;
+        e.title = `Odds the next visit opens as catchment vs survey — learned from your dwell time in this browser. Floor 25%.`;
+      });
+    }
+
+    function switchTo(next){
+      flush();                        /* close the ledger on the old edition */
+      document.documentElement.dataset.style = next;
+      try{ sessionStorage.setItem("edition-pin", next); }catch(e){}
+      if(next === "catchment") FIELD.ensure(); else FIELD.halt();
+      document.dispatchEvent(new CustomEvent("editionchange"));
+      syncControls();
+    }
+
+    document.querySelectorAll(".ed-toggle").forEach(b =>
+      b.addEventListener("click",
+        () => switchTo(styleNow() === "catchment" ? "survey" : "catchment")));
+    syncControls();
   })();
 </script>
 </body>
