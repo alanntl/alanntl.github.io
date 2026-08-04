@@ -31,9 +31,13 @@
     --line-soft:rgba(236,229,216,.07);
     --rail:212px;
     --shell:1000px;
+    /* Two families, not three. The serif sets everything that is read as
+       language; the mono sets everything that is read as data — labels,
+       timecodes, counts, station names on the chart. A third face was doing
+       no work that the size and spacing scale could not do, and three
+       typefaces on one screen reads as busy rather than considered. */
     --serif:"Iowan Old Style","Palatino Linotype",Palatino,"Book Antiqua",Georgia,serif;
     --mono:ui-monospace,SFMono-Regular,"SF Mono",Menlo,Consolas,"Liberation Mono",monospace;
-    --sans:ui-sans-serif,-apple-system,BlinkMacSystemFont,"Helvetica Neue",Arial,sans-serif;
     --ease:cubic-bezier(.22,.68,.28,1);
   }
 
@@ -41,7 +45,10 @@
   html{-webkit-text-size-adjust:100%}
   body{
     margin:0;background:var(--deep);color:var(--bone);
-    font-family:var(--sans);font-size:16px;line-height:1.62;
+    /* 17.5px because the old-style serifs in the stack have a noticeably
+       smaller x-height than a grotesque — 16px serif reads smaller than 16px
+       sans at the same nominal size. */
+    font-family:var(--serif);font-size:17.5px;line-height:1.6;
     -webkit-font-smoothing:antialiased;overflow-x:hidden;
   }
   a{color:inherit}
