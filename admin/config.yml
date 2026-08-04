@@ -7,10 +7,10 @@ backend:
   name: github
   repo: alanntl/alanntl.github.io
   branch: alanntl
-  # The same auth worker the other sites use. If "Sign In with GitHub"
-  # refuses this origin, add https://alanntl.github.io to the worker's
-  # ALLOWED_ORIGINS in Cloudflare — or use the access-token button.
-  base_url: https://sveltia-cms-auth.marvi-groundwater.workers.dev
+  # Pure GitHub, no OAuth proxy: sign in with a fine-grained personal
+  # access token (Contents: read/write on this one repo). The token talks
+  # straight to api.github.com and nowhere else. "Work with Local
+  # Repository" needs no token at all.
 
 site_url: https://alanntl.github.io
 # The editor's "Live Site" button opens the instant preview — the exact
