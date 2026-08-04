@@ -305,6 +305,13 @@
 
   /* ─── Responsive ───────────────────────────────────────────────── */
   @media (max-width:920px){
+    /* The directional scrim assumes the desktop split — type on the left,
+       drawing on the right. On a phone the text spans the full width, so a
+       left-to-right gradient leaves the right-hand ends of every line sitting
+       on bare field. Uniform here instead, slightly lighter overall since
+       there is less field to compete with. */
+    .veil{background:
+      linear-gradient(180deg,rgba(10,15,14,.72) 0%,rgba(10,15,14,.66) 40%,rgba(10,15,14,.74) 100%)}
     .rail{display:none}
     .bar{display:flex}
     .page{margin-left:0}
