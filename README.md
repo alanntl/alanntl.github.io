@@ -7,6 +7,40 @@ One self-contained `index.html`, no build step, no framework, no CDN, no externa
 resources of any kind. Served straight from the `alanntl` branch by GitHub Pages
 at **https://alanntl.github.io/**.
 
+## Two editions, one document
+
+The same DOM, the same content arrays, two complete visual systems scoped by
+`html[data-style]`:
+
+- **CATCHMENT** — the animated night piece: dark ground, serif, the streamline
+  field, the overture, film grain.
+- **SURVEY** — the printed daylight record: paper ground, grotesque, hairline
+  rules, dotted ledger leaders, folio stamps, a masthead with a survey ruler —
+  and no animation at all, because a report is not performed, it is issued.
+
+Which edition a visit opens with is a draw made in `<head>` before first paint.
+The odds are learned **per browser** from dwell time (visible seconds, capped at
+600 s/session, sub-second fragments ignored):
+
+```
+p(catchment) = mean dwell catchment / (mean catchment + mean survey)
+clamped to [0.25, 0.75] — a fresh browser is exactly 50:50
+```
+
+The floor binds only when one edition holds attention more than 3× longer, and
+it is what keeps the estimate alive: both editions keep being sampled, so no
+early lucky streak can lock the loser out. Everything lives in `localStorage`
+(`edition-bandit-v1`) — there is no server, so each browser learns its own odds
+rather than pooling across visitors.
+
+Practical bits: `?edition=catchment|survey` forces one; the draw is pinned per
+tab (`sessionStorage`) so reloads mid-read don't reshuffle; a visible toggle
+with the live odds sits in the rail/menu — a site whose thesis is *can you
+trust it* should not hide that it is running an experiment on the reader. The
+probability rule lives in `pCatchment()` in the EDITIONS module if you ever
+want to reshape it (softmax with a temperature, or a win-rate Beta posterior,
+are the two obvious alternatives).
+
 ## Art direction
 
 The visual language is taken from the instruments of the subject's own field
