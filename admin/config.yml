@@ -156,7 +156,7 @@ collections:
         label: Background
         file: content/background.json
         fields:
-          - name: fields
+          - name: areas
             label: Fields worked in
             label_singular: Field
             widget: list

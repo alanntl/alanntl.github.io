@@ -1,5 +1,5 @@
 {
-  "fields": [
+  "areas": [
     {
       "field": "Water science",
       "when": "Now",
@@ -14,7 +14,7 @@
     {
       "field": "Fintech",
       "when": "Earlier",
-      "blurb": "Financial systems and market data — the origin of Traddy, a portfolio and trading interface for Interactive Brokers."
+      "blurb": "Financial systems and market data \u2014 the origin of Traddy, a portfolio and trading interface for Interactive Brokers."
     },
     {
       "field": "Energy & automation",
@@ -33,12 +33,12 @@
       "blurb": "Quickmini trims and compresses in a single ffmpeg pass. Two passes would decode and re-encode the video twice and lose quality to a second round of compression, for no gain. Most speed comes from removing a step, not tuning one."
     },
     {
-      "name": "Silently wrong beats slow — never",
-      "blurb": "Stream copy made trims about 20× faster, but cuts can only land on keyframes: a requested 7.0s trim exported 18.8s with no error. It was removed. An output that is quietly incorrect costs far more than one that takes 25 seconds."
+      "name": "Silently wrong beats slow \u2014 never",
+      "blurb": "Stream copy made trims about 20\u00d7 faster, but cuts can only land on keyframes: a requested 7.0s trim exported 18.8s with no error. It was removed. An output that is quietly incorrect costs far more than one that takes 25 seconds."
     },
     {
       "name": "Write down what didn't work",
-      "blurb": "The multithreaded ffmpeg core deadlocks mid-encode; VP9 crashes the wasm heap where VP8 survives. Both are recorded in the source with what was observed, so nobody — including me — spends another afternoon rediscovering them."
+      "blurb": "The multithreaded ffmpeg core deadlocks mid-encode; VP9 crashes the wasm heap where VP8 survives. Both are recorded in the source with what was observed, so nobody \u2014 including me \u2014 spends another afternoon rediscovering them."
     },
     {
       "name": "Prove it against the real thing",
