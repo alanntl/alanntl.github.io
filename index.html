@@ -846,19 +846,49 @@
     let scale = 0.0016, drift = 2.0, target = 0.0016, surge = 1;
     const pointer = {x:-9999, y:-9999, on:false};
 
-    /* Pointer only — a touch drag would fight the page scroll, and on a
-       phone the finger covers the effect anyway. */
-    addEventListener("pointermove", e => {
-      if(e.pointerType === "touch") return;
-      pointer.x = e.clientX; pointer.y = e.clientY; pointer.on = true;
-    }, {passive:true});
+    /* Touch drives the vortex too. Every listener is passive and nothing
+       calls preventDefault, so the page still scrolls normally — the finger
+       just drags the flow along with it. Touch releases the vortex on lift;
+       a mouse keeps it, since a click should not switch the field off. */
+    const track = e => { pointer.x = e.clientX; pointer.y = e.clientY; pointer.on = true; };
+    const release = e => { if(!e || e.pointerType === "touch") pointer.on = false; };
+    addEventListener("pointermove", track, {passive:true});
+    addEventListener("pointerdown", track, {passive:true});
+    addEventListener("pointerup", release, {passive:true});
+    addEventListener("pointercancel", release, {passive:true});
     addEventListener("pointerleave", () => { pointer.on = false; }, {passive:true});
 
-    const COUNT = () => Math.min(2400, Math.round(innerWidth * innerHeight / 1100));
+    /* Phones get a lower particle density: the field costs 32 sin() per
+       particle per frame, and a phone GPU/CPU should not be asked for the
+       same budget as a desktop. */
+    const COUNT = () => Math.min(2400,
+      Math.round(innerWidth * innerHeight / (innerWidth < 700 ? 1900 : 1100)));
 
-    function resize(){
+    let cssW = 0, cssH = 0;
+
+    /* Returns true if it actually re-initialised.
+
+       Two mobile hazards handled here:
+
+       1. A viewport of 0. At load the reported size can briefly be zero,
+          and the old code took it, sized the canvas 0x0 and never recovered
+          because nothing fired a second resize — the field was simply absent.
+          Degenerate sizes are now refused, and a ResizeObserver re-runs this
+          once layout settles.
+
+       2. iOS shows and hides its toolbar while you scroll, firing resize with
+          a height change of 60-100px each time. Re-initialising there would
+          clear the canvas and restart the drawing on every scroll. Height is
+          therefore grow-only: a shrinking viewport is ignored, so the canvas
+          stays put and the drawing survives scrolling. */
+    function fit(){
+      const w = Math.round(innerWidth), h = Math.round(innerHeight);
+      if(w < 2 || h < 2) return false;
+      const targetH = Math.max(h, cssH);
+      if(w === cssW && targetH === cssH) return false;
+      cssW = w; cssH = targetH;
       dpr = Math.min(devicePixelRatio || 1, 2);
-      W = innerWidth; H = innerHeight;
+      W = cssW; H = cssH;
       cv.width = W * dpr; cv.height = H * dpr;
       cv.style.width = W + "px"; cv.style.height = H + "px";
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
@@ -866,6 +896,7 @@
       ctx.fillRect(0, 0, W, H);
       seed();
       prime();
+      return true;
     }
 
     /* The animated loop needs ~7s to build a visible drawing, which would
@@ -1003,13 +1034,24 @@
     function start(){ if(!running && !still.matches){ running = true; raf = requestAnimationFrame(frame); } }
     function stop(){ running = false; cancelAnimationFrame(raf); }
 
-    addEventListener("resize", resize, {passive:true});
+    addEventListener("resize", fit, {passive:true});
+    /* The resize event alone is not enough: if the viewport reports zero at
+       load, nothing necessarily fires a second one, and the canvas stays 0x0
+       forever. A ResizeObserver fires whenever layout actually settles, which
+       is the reliable signal. */
+    if("ResizeObserver" in window){
+      new ResizeObserver(() => fit()).observe(document.documentElement);
+    }
+    /* iOS reports the pre-rotation size for a moment after orientationchange. */
+    addEventListener("orientationchange", () => setTimeout(fit, 150), {passive:true});
     /* rAF does not run in a hidden tab anyway; stopping explicitly also
        releases the loop rather than leaving it queued. */
     document.addEventListener("visibilitychange", () => document.hidden ? stop() : start());
 
-    resize();          /* draws the primed field — this is what reduced
-                          motion keeps, as its single static frame */
+    fit();             /* draws the primed field — this is what reduced
+                          motion keeps, as its single static frame. May be a
+                          no-op if the viewport is not measurable yet, in
+                          which case the ResizeObserver above covers it. */
     start();           /* no-op when reduced motion is requested */
 
     return {
