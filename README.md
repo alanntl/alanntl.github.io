@@ -69,10 +69,18 @@ requests a Pages build on every push, so saves go live in a minute or two.
 hydrograph all follow), and edit the three headline lines. Sections are
 panels that exist in the code — the structure page can't create new ones.
 
-**Instant preview:** keep **https://alanntl.github.io/?preview** open beside
-the editor. It polls the raw repo copies of the content files every few
-seconds, so a save appears there within seconds — before the Pages build
-finishes. The editor also has its own field-preview pane while you type.
+**Instant preview — the exact page, while you type:** keep
+**https://alanntl.github.io/?preview** open beside the editor (the editor's
+Live Site button opens it). It renders the real site — field, editions,
+photo — and every 2.5s it lays the editor's own unsaved draft (autosaved to
+IndexedDB on this origin) over the saved content, so the page updates as
+you type, before you press Save. The badge reads "draft (unsaved)" until
+you save, then the same view becomes the committed one.
+
+**New pages:** Custom pages collection → Add page (title, intro, blocks) →
+Save. Then Structure → add a row with the page's filename as the id — it
+appears in the nav and on the hydrograph, weighted by block count. Tick
+Hidden to keep it link-only. A hidden worked example lives at `#example`.
 
 Signing in, two ways, both serverless:
 
