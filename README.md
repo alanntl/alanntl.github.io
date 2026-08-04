@@ -66,8 +66,9 @@ Writing, Research, Background, Contact — backed by one JSON each under
 requests a Pages build on every push, so saves go live in a minute or two.
 
 **Structure page:** rename, reorder or hide sections (nav, menu and the
-hydrograph all follow), and edit the three headline lines. Sections are
-panels that exist in the code — the structure page can't create new ones.
+hydrograph all follow), and edit the three headline lines. Rows naming a
+built-in panel or a Custom page's filename appear; anything else is ignored,
+so a typo can't make a dead button.
 
 **Instant preview — the exact page, while you type:** keep
 **https://alanntl.github.io/?preview** open beside the editor (the editor's
@@ -116,8 +117,8 @@ the title link. Background rows are `{field, when, blurb, current}`, working
 rules are `{name, blurb}`, contact rows are `{label, detail, href}`. The CMS
 enforces all of this, so the JSON only needs hand-editing if you prefer git.
 
-Adding a whole *section* is still a code change: one object in `SECTIONS`,
-one matching `<section class="panel">`, and its list wiring in `boot()`.
+Custom pages live at `content/pages/<slug>.json` as `{title, lede, blocks}`.
+Only a new *built-in* list section (like Projects) is a code change now.
 
 ## The flow field
 
