@@ -7,9 +7,15 @@ backend:
   name: github
   repo: alanntl/alanntl.github.io
   branch: alanntl
+  # The same auth worker the other sites use. If "Sign In with GitHub"
+  # refuses this origin, add https://alanntl.github.io to the worker's
+  # ALLOWED_ORIGINS in Cloudflare — or use the access-token button.
+  base_url: https://sveltia-cms-auth.marvi-groundwater.workers.dev
 
 site_url: https://alanntl.github.io
-display_url: https://alanntl.github.io
+# The editor's "Live Site" button opens the instant preview — the exact
+# page, effects and all, re-rendering seconds after every save.
+display_url: "https://alanntl.github.io/?preview"
 media_folder: assets
 public_folder: assets
 
@@ -91,6 +97,48 @@ collections:
                 fields:
                   - {name: label, label: Label, widget: string}
                   - {name: href, label: URL, widget: string}
+              - &blocksField
+                name: blocks
+                label: Blocks
+                label_singular: block
+                widget: list
+                required: false
+                default: []
+                typeKey: type
+                summary: "{{fields.type}}"
+                hint: "Optional long-form content under the entry, top to bottom. Add blocks of any type and drag to rearrange."
+                types:
+                  - label: Text
+                    name: text
+                    widget: object
+                    fields:
+                      - {name: heading, label: "Heading (optional)", widget: string, required: false}
+                      - {name: body, label: Text, widget: text, hint: "Blank line between paragraphs."}
+                  - label: Image
+                    name: image
+                    widget: object
+                    fields:
+                      - {name: src, label: Image, widget: image}
+                      - {name: alt, label: "Alt text", widget: string}
+                      - {name: caption, label: "Caption (optional)", widget: string, required: false}
+                  - label: Quote
+                    name: quote
+                    widget: object
+                    fields:
+                      - {name: body, label: Quote, widget: text}
+                      - {name: attribution, label: "Attribution (optional)", widget: string, required: false}
+                  - label: Code
+                    name: code
+                    widget: object
+                    fields:
+                      - {name: language, label: "Language label (optional)", widget: string, required: false}
+                      - {name: body, label: Code, widget: text}
+                  - label: Link button
+                    name: link
+                    widget: object
+                    fields:
+                      - {name: label, label: Label, widget: string}
+                      - {name: href, label: URL, widget: string}
 
       - name: writing
         label: Writing
@@ -122,6 +170,7 @@ collections:
                 fields:
                   - {name: label, label: Label, widget: string}
                   - {name: href, label: URL, widget: string}
+              - *blocksField
 
       - name: research
         label: Research
@@ -151,6 +200,7 @@ collections:
                 fields:
                   - {name: label, label: Label, widget: string}
                   - {name: href, label: URL, widget: string}
+              - *blocksField
 
       - name: background
         label: Background

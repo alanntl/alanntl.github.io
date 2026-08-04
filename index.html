@@ -370,6 +370,21 @@
     color:var(--mark);text-decoration:none;border-bottom:1px solid transparent;transition:border-color .4s var(--ease)}
   .links a:hover{border-bottom-color:var(--mark)}
 
+  /* ── Blocks: typed long-form content inside an entry ─────────────── */
+  .blocks{grid-column:1/-1;max-width:64ch;margin-top:18px;display:grid;gap:14px;justify-items:start}
+  .blocks h4{margin:8px 0 0;font-family:var(--serif);font-weight:600;font-size:1.05rem;letter-spacing:-.01em}
+  .blocks p{margin:0;color:var(--muted);font-size:.95rem;max-width:64ch}
+  .blk-img{margin:6px 0;width:100%}
+  .blk-img img{width:100%;height:auto;border:1px solid var(--line)}
+  .blk-img figcaption{margin-top:8px;font-family:var(--mono);font-size:.6rem;letter-spacing:.14em;text-transform:uppercase;color:var(--faint)}
+  .blk-quote{margin:6px 0;padding:4px 0 4px 18px;border-left:2px solid var(--mark)}
+  .blk-quote p{color:var(--bone);font-family:var(--serif);font-size:1.05rem;font-style:italic}
+  .blk-quote cite{display:block;margin-top:8px;font-family:var(--mono);font-size:.62rem;letter-spacing:.12em;text-transform:uppercase;color:var(--faint);font-style:normal}
+  .blk-code{margin:6px 0;padding:14px 16px;width:100%;background:var(--deeper);border:1px solid var(--line-soft);overflow-x:auto;position:relative}
+  .blk-code code{font-family:var(--mono);font-size:.8rem;color:var(--bone)}
+  .blk-code[data-lang]::before{content:attr(data-lang);position:absolute;top:6px;right:10px;font-family:var(--mono);font-size:.55rem;letter-spacing:.14em;text-transform:uppercase;color:var(--faint)}
+  .blk-btn{margin-top:4px}
+
   .search{display:flex;align-items:center;gap:14px;margin:0;padding:16px 0;border-bottom:1px solid var(--line-soft)}
   .search input{flex:1;min-width:0;border:0;background:none;outline:none;
     font-family:var(--serif);font-size:1.1rem;color:var(--bone)}
@@ -809,7 +824,34 @@
      ═══════════════════════════════════════════════════════════════════ */
 
   const esc = v => String(v).replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;"}[c]));
-  const searchText = e => [e.name, e.blurb, ...(e.tags||[])].join(" ").toLowerCase();
+  const searchText = e => [e.name, e.blurb, ...(e.tags||[]),
+    ...(e.blocks||[]).map(b => [b.heading, b.body, b.caption, b.label].filter(Boolean).join(" "))
+  ].join(" ").toLowerCase();
+
+  /* ── Blocks ─────────────────────────────────────────────────────────
+     Entries can carry long-form content as a list of typed blocks — the
+     same pattern as the other sites' page builders. Unknown types render
+     as nothing rather than breaking the entry, so an older deploy can
+     survive a newer content file. */
+  let PREVIEWING = false;   /* set by the loader before first boot */
+  const RAW_ROOT = "https://raw.githubusercontent.com/alanntl/alanntl.github.io/alanntl/";
+  /* In preview mode, images uploaded through the CMS exist in the repo but
+     not yet on Pages — serve them from the repo so they show instantly. */
+  const assetURL = src => PREVIEWING && /^assets\//.test(src || "") ? RAW_ROOT + src : (src || "");
+  const paras = t => String(t || "").split(/\n\s*\n/).filter(Boolean)
+    .map(p => `<p>${esc(p)}</p>`).join("");
+
+  const BLOCK_RENDER = {
+    text: b => `${b.heading ? `<h4>${esc(b.heading)}</h4>` : ""}${paras(b.body)}`,
+    image: b => `<figure class="blk-img"><img src="${esc(assetURL(b.src))}" alt="${esc(b.alt || "")}" loading="lazy">${
+      b.caption ? `<figcaption>${esc(b.caption)}</figcaption>` : ""}</figure>`,
+    quote: b => `<blockquote class="blk-quote">${paras(b.body)}${
+      b.attribution ? `<cite>${esc(b.attribution)}</cite>` : ""}</blockquote>`,
+    code: b => `<pre class="blk-code"${b.language ? ` data-lang="${esc(b.language)}"` : ""}><code>${esc(b.body || "")}</code></pre>`,
+    link: b => `<a class="btn blk-btn" href="${esc(b.href || "#")}" target="_blank" rel="noreferrer"><span>${esc(b.label || "Open")}</span></a>`,
+  };
+  const renderBlocks = list =>
+    (list || []).map(b => BLOCK_RENDER[b.type]?.(b) ?? "").join("");
 
   function entryHTML(entry){
     const title = entry.links?.[0]
@@ -825,6 +867,7 @@
         <span class="chip">${esc(entry.year)}</span>
       </div>
       <p>${esc(entry.blurb)}</p>
+      ${entry.blocks?.length ? `<div class="blocks">${renderBlocks(entry.blocks)}</div>` : ""}
       ${tags ? `<div class="tags">${tags}</div>` : ""}
       ${links ? `<div class="links">${links}</div>` : ""}
     </li>`;
@@ -953,6 +996,7 @@
 
   (async () => {
     const preview = new URLSearchParams(location.search).has("preview");
+    PREVIEWING = preview;
     const C = await fetchContent("content/", false);
     boot(C);
 
