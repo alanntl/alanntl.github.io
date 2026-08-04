@@ -891,16 +891,29 @@
   /* One JSON per page, so one CMS save is one small commit. */
   const CONTENT_FILES = ["structure","home","projects","writing","research","background","contact"];
 
-  async function fetchContent(base, bust){
-    const raw = {};
+  const CORE_PANELS = new Set(["home","work","projects","writing","research","contact"]);
+
+  async function fetchRaw(base, bust){
+    const q = name => fetch(base + name + ".json" + (bust ? "?t=" + Date.now() : ""),
+                            {signal: AbortSignal.timeout(6000)});
+    const raw = {pages:{}};
     await Promise.all(CONTENT_FILES.map(async name => {
-      try{
-        const r = await fetch(base + name + ".json" + (bust ? "?t=" + Date.now() : ""),
-                              {signal: AbortSignal.timeout(6000)});
-        if(r.ok) raw[name] = await r.json();
-      }catch(e){ /* that file falls back */ }
+      try{ const r = await q(name); if(r.ok) raw[name] = await r.json(); }
+      catch(e){ /* that file falls back */ }
     }));
-    const C = {...FALLBACK};
+    /* Custom pages: fetch a file for every structure id that isn't a
+       built-in panel — hidden ones too, so they stay deep-linkable. */
+    const extra = (raw.structure?.sections || [])
+      .map(s => s.id).filter(id => id && !CORE_PANELS.has(id));
+    await Promise.all([...new Set(extra)].map(async id => {
+      try{ const r = await q("pages/" + id); if(r.ok) raw.pages[id] = await r.json(); }
+      catch(e){}
+    }));
+    return raw;
+  }
+
+  function mapRaw(raw){
+    const C = {...FALLBACK, pages: raw.pages || {}};
     if(raw.structure) C.structure = raw.structure;
     if(raw.home) C.home = raw.home;
     if(raw.projects?.items) C.projects = raw.projects.items;
@@ -912,6 +925,54 @@
     return C;
   }
 
+  async function fetchContent(base, bust){ return mapRaw(await fetchRaw(base, bust)); }
+
+  /* ── Unsaved drafts, rendered exactly ───────────────────────────────
+     The editor autosaves the entry being typed into IndexedDB on this
+     same origin. In preview mode those drafts are read directly and laid
+     over the saved content, so the preview shows the page exactly as it
+     will look — while you type, before you save. Values are stored
+     flattened ("items.0.name"), so they're unflattened here. */
+  function unflatten(flat){
+    const root = {};
+    for(const [key, value] of Object.entries(flat || {})){
+      const parts = key.split(".");
+      let cur = root;
+      parts.forEach((p, i) => {
+        if(i === parts.length - 1){ cur[p] = value; return; }
+        cur = cur[p] ??= (String(+parts[i + 1]) === parts[i + 1] ? [] : {});
+      });
+    }
+    return root;
+  }
+
+  async function draftOverlay(raw){
+    try{
+      const db = await new Promise((res, rej) => {
+        const q = indexedDB.open("github:alanntl/alanntl.github.io");
+        q.onsuccess = () => res(q.result); q.onerror = rej;
+      });
+      const rows = await new Promise((res, rej) => {
+        const t = db.transaction("draft-backups", "readonly")
+          .objectStore("draft-backups").getAll();
+        t.onsuccess = () => res(t.result); t.onerror = rej;
+      });
+      db.close();
+      let drafts = 0;
+      for(const r of rows){
+        const locales = r.currentValues || {};
+        const vals = locales._default ?? locales[Object.keys(locales)[0]];
+        if(!vals) continue;
+        const data = unflatten(vals);
+        const key = r.fileName || r.slug;
+        if(!key) continue;
+        if(r.collectionName === "custompages"){ (raw.pages ??= {})[key] = data; drafts++; }
+        else if(r.collectionName === "pages"){ raw[key] = data; drafts++; }
+      }
+      return drafts;
+    }catch(e){ return 0; }
+  }
+
   let SECTIONS_LIVE = SECTIONS;
   let booted = false;
 
@@ -919,11 +980,42 @@
     /* Structure: labels, order and visibility come from content. Ids must
        match panels that exist in the DOM, and unknown ids are dropped, so
        a bad edit can never produce a dead nav button. */
-    const known = new Set([...document.querySelectorAll("[data-panel]")].map(p => p.dataset.panel));
-    const wanted = C.structure?.sections?.filter(s => known.has(s.id) && !s.hidden);
-    SECTIONS_LIVE = wanted?.length
+    const staticIds = new Set([...document.querySelectorAll("[data-panel]:not([data-dynamic])")]
+      .map(p => p.dataset.panel));
+    const rows = C.structure?.sections || [];
+    const dynIds = new Set(rows.filter(s => !staticIds.has(s.id) && C.pages?.[s.id]).map(s => s.id));
+    const wanted = rows.filter(s => (staticIds.has(s.id) || dynIds.has(s.id)) && !s.hidden);
+    SECTIONS_LIVE = wanted.length
       ? wanted.map((s, i) => ({id:s.id, label:s.label || s.id, tc:String(i).padStart(2, "0")}))
       : SECTIONS;
+
+    /* Custom pages become real panels — created here, updated in place,
+       removed when the structure drops them. */
+    document.querySelectorAll("[data-panel][data-dynamic]").forEach(p => {
+      if(!dynIds.has(p.dataset.panel)) p.remove();
+    });
+    const mainEl = document.getElementById("content");
+    rows.forEach(s => {
+      if(!dynIds.has(s.id)) return;
+      const page = C.pages[s.id];
+      const tc = SECTIONS_LIVE.find(x => x.id === s.id)?.tc ?? "··";
+      let panel = document.querySelector(`[data-panel="${CSS.escape(s.id)}"]`);
+      if(!panel){
+        panel = document.createElement("section");
+        panel.className = "panel";
+        panel.dataset.panel = s.id;
+        panel.dataset.dynamic = "1";
+        panel.hidden = true;
+        mainEl.appendChild(panel);
+      }
+      panel.innerHTML = `
+        <div class="head" data-numeral="${tc}"><div class="shell">
+          <p class="tc">${tc} — ${esc(s.label || page.title || s.id)}</p>
+          <h1 class="display">${esc(page.title || s.label || s.id)}</h1>
+          ${page.lede ? `<p class="lede">${esc(page.lede)}</p>` : ""}
+        </div></div>
+        <div class="body"><div class="shell"><div class="blocks">${renderBlocks(page.blocks)}</div></div></div>`;
+    });
 
     if(C.structure?.headline){
       const H = C.structure.headline;
@@ -1015,15 +1107,20 @@
     setInterval(async () => {
       if(document.hidden) return;
       try{
-        const next = await fetchContent(RAW, true);
+        /* Saved content from the repo, then unsaved drafts laid over it —
+           the page you see is the page you are typing. */
+        const raw = await fetchRaw(RAW, true);
+        const drafts = await draftOverlay(raw);
+        const next = mapRaw(raw);
         const sig = JSON.stringify(next);
         if(sig !== last){
           last = sig;
           boot(next);
-          badge.textContent = "preview · updated " + new Date().toLocaleTimeString();
+          badge.textContent = (drafts ? "preview · draft (unsaved) · " : "preview · updated ")
+            + new Date().toLocaleTimeString();
         }
       }catch(e){}
-    }, 4000);
+    }, 2500);
   })();
 
   /* ═══════════════════════════════════════════════════════════════════
@@ -1033,10 +1130,13 @@
      ═══════════════════════════════════════════════════════════════════ */
 
   function drawGauge(C){
-    const WEIGHTS = Object.fromEntries(Object.entries({
-      home: 1, work: C.background.length + C.principles.length, projects: C.projects.length,
-      writing: C.writing.length, research: C.research.length, contact: C.contact.length,
-    }).map(([k, v]) => [k, Math.max(1, v)]));
+    /* Stage height per station: built-ins by entry count, custom pages by
+       block count, floored at 1 so nothing vanishes from the chart. */
+    const baseW = {home:1, work:C.background.length + C.principles.length,
+      projects:C.projects.length, writing:C.writing.length,
+      research:C.research.length, contact:C.contact.length};
+    const WEIGHTS = Object.fromEntries(SECTIONS_LIVE.map(s =>
+      [s.id, Math.max(1, baseW[s.id] ?? (C.pages?.[s.id]?.blocks?.length || 1))]));
     /* boot() may run after a deep link has already switched panels, so the
        current station comes from the live DOM, not from "home". */
     const cur = document.querySelector(".panel:not([hidden])")?.dataset.panel || "home";
@@ -1105,14 +1205,12 @@
      deep links working.
      ═══════════════════════════════════════════════════════════════════ */
 
-  const panels = [...document.querySelectorAll("[data-panel]")];
-  /* Valid names come from the DOM, not the section list — a section hidden
-     via the structure page stays deep-linkable, it just leaves the nav. */
-  const names = new Set(panels.map(p => p.dataset.panel));
-
+  /* Panels are queried live, not captured — custom pages add and remove
+     panels at runtime. A section hidden via the structure page stays
+     deep-linkable; it just leaves the nav. */
   function showPanel(name, updateHash = true){
-    if(!names.has(name)) name = "home";
-    panels.forEach(p => p.hidden = p.dataset.panel !== name);
+    if(!document.querySelector(`[data-panel="${CSS.escape(name)}"]`)) name = "home";
+    document.querySelectorAll("[data-panel]").forEach(p => p.hidden = p.dataset.panel !== name);
     document.querySelectorAll("[data-tab]").forEach(t => {
       const on = String(t.dataset.tab === name);
       t.setAttribute(t.classList.contains("stn") ? "aria-current" : "aria-selected", on);

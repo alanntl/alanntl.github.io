@@ -44,9 +44,11 @@ collections:
               one from here.
             fields:
               - name: id
-                label: Panel
-                widget: select
-                options: [home, work, projects, writing, research, contact]
+                label: Panel id
+                widget: string
+                hint: >-
+                  Built-ins: home, work, projects, writing, research, contact.
+                  Or the filename of a Custom page to put it in the nav.
               - {name: label, label: Shown label, widget: string}
               - {name: hidden, label: Hidden, widget: boolean, required: false, default: false}
           - name: headline
@@ -238,3 +240,24 @@ collections:
               - {name: label, label: Label, widget: string}
               - {name: detail, label: Shown detail, widget: string}
               - {name: href, label: URL, widget: string}
+
+  - name: custompages
+    label: Custom pages
+    label_singular: page
+    folder: content/pages
+    create: true
+    format: json
+    extension: json
+    identifier_field: title
+    summary: "{{fields.title}}"
+    editor:
+      preview: true
+    fields:
+      - name: title
+        label: Page title
+        widget: string
+        hint: >-
+          The filename comes from this title. To put the page in the nav,
+          add a row on the Structure page with that filename as the id.
+      - {name: lede, label: "Intro line (optional)", widget: text, required: false}
+      - *blocksField

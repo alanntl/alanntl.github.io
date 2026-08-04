@@ -1,0 +1,21 @@
+{
+  "title": "Example page",
+  "lede": "A custom page made of blocks. Duplicate this in the editor, or delete it once you have real ones.",
+  "blocks": [
+    {
+      "type": "text",
+      "heading": "How this page exists",
+      "body": "It is one JSON file under content/pages/, created from the Custom pages collection in the editor.\n\nTo put a page like this in the nav, add a row on the Structure page with the page's filename as the id. This one is hidden, so it is only reachable by link."
+    },
+    {
+      "type": "code",
+      "language": "steps",
+      "body": "1. Custom pages -> Add page -> write blocks -> Save\n2. Structure -> Add section -> id = the page filename\n3. Watch it appear in the nav and on the hydrograph"
+    },
+    {
+      "type": "link",
+      "label": "Back to home",
+      "href": "https://alanntl.github.io/#home"
+    }
+  ]
+}

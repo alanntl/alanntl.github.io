@@ -29,6 +29,11 @@
       "id": "contact",
       "label": "Contact",
       "hidden": false
+    },
+    {
+      "id": "example",
+      "label": "Example",
+      "hidden": true
     }
   ],
   "headline": {
