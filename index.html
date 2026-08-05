@@ -633,9 +633,13 @@
     animation:candle 26s ease-in-out infinite alternate}
   @keyframes candle{from{background-position:10% 6%}to{background-position:82% 34%}}
 
-  /* The living margins. */
-  #vines{position:fixed;inset:0;z-index:0;pointer-events:none;display:none}
-  html[data-style="studio"] #vines{display:block}
+  /* The medallion: one engraved guilloché rosette behind the page,
+     turning once every seven minutes. */
+  #vines{position:fixed;left:50%;top:50%;z-index:0;pointer-events:none;display:none;
+    transform:translate(-50%,-50%)}
+  html[data-style="studio"] #vines{display:block;animation:medallion 420s linear infinite}
+  @keyframes medallion{from{transform:translate(-50%,-50%) rotate(0deg)}
+    to{transform:translate(-50%,-50%) rotate(360deg)}}
   </style>
 </head>
 <body>
@@ -1693,190 +1697,63 @@
   })();
 
   /* ═══════════════════════════════════════════════════════════════════
-     MARGINALIA — science drawn as art
-     The parchment's ambient life, in the author's own subjects. Two
-     instruments alternate down the margins:
-
-     · Neural networks, inked like Cajal's neuron plates — nodes and
-       gently curved edges in iron-gall ink. Every few seconds a forward
-       pass runs: gold activations sweep layer to layer and the winning
-       path flashes in rubric red.
-
-     · Harmonograph plates — the damped two-pendulum figure
-       x = R·e^(−λt)·sin(at+φ₁), y = R·e^(−λt)·sin(bt+φ₂) — each drawing
-       itself over ~11s, closing with a gold centre point, then starting
-       a new figure with fresh frequency ratios.
-
-     Old work ghosts back into the vellum; entities live half a minute or
-     so and respawn as either kind. Desktop only — under 1120px there are
-     no margins to draw in.
+     THE MEDALLION
+     One object instead of many: a guilloché rosette — the engraved
+     geometry of banknotes and certificates — drawn as superposed
+     harmonic bands ρ(θ) = R + A·sin(nθ) + B·sin(mθ), with phase-shifted
+     twins weaving the moiré. Enormous, symmetric, whisper-faint behind
+     the whole page; CSS turns it once every seven minutes. Drawn once —
+     no animation loop at all.
      ═══════════════════════════════════════════════════════════════════ */
-  const MARGINALIA = (() => {
+  const MEDALLION = (() => {
     const cv = document.createElement("canvas");
     cv.id = "vines"; cv.setAttribute("aria-hidden", "true");
     document.body.prepend(cv);
     const ctx = cv.getContext("2d");
-    const still = matchMedia("(prefers-reduced-motion:reduce)");
-    const INK = "rgba(55,44,30,", GOLD = "rgba(138,101,31,", RUBRIC = "rgba(156,47,29,";
     let active = document.documentElement.dataset.style === "studio";
-    let W = 0, H = 0, dpr = 1, raf = 0, running = false, ents = [];
-    const BAND = 96;
-    const bandCX = side => side === 0 ? 20 + BAND / 2 : W - 20 - BAND / 2;
 
-    function makeNet(side, slotY){
-      const layers = 5 + Math.floor(Math.random() * 3);
-      const gapY = Math.min(80, Math.max(56, (H * .42) / layers));
-      const top = Math.max(64, Math.min(slotY - layers * gapY / 2, H - layers * gapY - 70));
-      const cx = bandCX(side);
-      const nodes = [];
-      for(let l = 0; l < layers; l++){
-        const n = l === layers - 1 ? 1 + Math.round(Math.random()) : 2 + Math.floor(Math.random() * 3);
-        const spread = Math.min(62, 24 * (n - 1));
-        nodes.push(Array.from({length:n}, (_, i) => ({
-          x: cx - spread / 2 + (n === 1 ? 0 : spread * i / (n - 1)) + (Math.random() - .5) * 6,
-          y: top + l * gapY + (Math.random() - .5) * 8})));
-      }
-      const wts = [];
-      for(let l = 0; l < layers - 1; l++){
-        const m = [];
-        for(const a of nodes[l]) for(const b of nodes[l + 1])
-          m.push({a, b, w:.15 + Math.random() * .85, bend:(Math.random() - .5) * 20});
-        wts.push(m);
-      }
-      return {kind:"net", side, slotY, nodes, wts, layers,
-              winners: nodes.map(row => Math.floor(Math.random() * row.length)),
-              born: performance.now(), life: 36000 + Math.random() * 28000,
-              nextPulse: performance.now() + 500 + Math.random() * 2200, pulse:null, stageMs:235};
-    }
-    function makeRose(side, slotY){
-      const pick = () => 2 + Math.floor(Math.random() * 6);
-      let a = pick(), b = pick(); if(a === b) b = a + 1;
-      return {kind:"rose", side, slotY, R: 30 + Math.random() * 15,
-              cx: bandCX(side) + (Math.random() - .5) * 8,
-              cy: Math.max(90, Math.min(slotY, H - 90)),
-              a, b, p1: Math.random() * 6.283, p2: Math.random() * 6.283, t: 0,
-              born: performance.now(), life: 38000 + Math.random() * 26000};
-    }
-    const spawn = (side, slotY) =>
-      Math.random() < .55 ? makeNet(side, slotY) : makeRose(side, slotY);
-
-    const qp = (a, b, bend, t) => {
-      const mx = (a.x + b.x) / 2 + bend, my = (a.y + b.y) / 2, u = 1 - t;
-      return {x: u * u * a.x + 2 * u * t * mx + t * t * b.x,
-              y: u * u * a.y + 2 * u * t * my + t * t * b.y};
-    };
-    const edgeStroke = (a, b, bend) => {
-      ctx.beginPath();
-      let p = qp(a, b, bend, 0); ctx.moveTo(p.x, p.y);
-      for(let t = .12; t <= 1.001; t += .12){ p = qp(a, b, bend, t); ctx.lineTo(p.x, p.y); }
-      ctx.stroke();
-    };
-
-    function inkNet(net){
-      for(const m of net.wts) for(const e of m){
-        ctx.strokeStyle = INK + (.10 + .22 * e.w) + ")"; ctx.lineWidth = .7;
-        edgeStroke(e.a, e.b, e.bend);
-      }
-      for(const row of net.nodes) for(const nd of row){
-        ctx.strokeStyle = INK + ".55)"; ctx.lineWidth = .9;
-        ctx.beginPath(); ctx.arc(nd.x, nd.y, 2.7, 0, 6.283); ctx.stroke();
-      }
-    }
-    function winnerPath(net){
-      ctx.strokeStyle = RUBRIC + ".5)"; ctx.lineWidth = 1.15;
-      for(let l = 0; l < net.layers - 1; l++){
-        const a = net.nodes[l][Math.min(net.winners[l], net.nodes[l].length - 1)];
-        const b = net.nodes[l + 1][Math.min(net.winners[l + 1], net.nodes[l + 1].length - 1)];
-        edgeStroke(a, b, 0);
-      }
-    }
-    function stepNet(net, now){
-      if(!net.pulse && now >= net.nextPulse){ net.pulse = {t0: now}; inkNet(net); }
-      if(!net.pulse) return;
-      const el = now - net.pulse.t0;
-      const stage = Math.floor(el / net.stageMs), tt = (el % net.stageMs) / net.stageMs;
-      if(stage >= net.layers - 1){
-        winnerPath(net);
-        const out = net.nodes[net.layers - 1][0];
-        ctx.fillStyle = GOLD + ".55)";
-        ctx.beginPath(); ctx.arc(out.x, out.y, 2.2, 0, 6.283); ctx.fill();
-        net.pulse = null; net.nextPulse = now + 3600 + Math.random() * 3800;
-        return;
-      }
-      for(const e of net.wts[stage]){
-        const p = qp(e.a, e.b, e.bend, tt);
-        ctx.fillStyle = GOLD + (.26 + .3 * e.w) + ")";
-        ctx.beginPath(); ctx.arc(p.x, p.y, 1.25, 0, 6.283); ctx.fill();
-      }
-      if(tt > .82) for(const nd of net.nodes[stage + 1]){
-        ctx.fillStyle = GOLD + ".45)";
-        ctx.beginPath(); ctx.arc(nd.x, nd.y, 2.1, 0, 6.283); ctx.fill();
-      }
-    }
-    function stepRose(r){
-      ctx.strokeStyle = INK + ".33)"; ctx.lineWidth = .75;
-      ctx.beginPath();
-      for(let k = 0; k < 4; k++){
-        const t = r.t + k * .045;
-        const amp = r.R * Math.exp(-t * .006);
-        const x = r.cx + amp * Math.sin(r.a * t * .35 + r.p1);
-        const y = r.cy + amp * Math.sin(r.b * t * .35 + r.p2);
-        k === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
-      }
-      ctx.stroke();
-      r.t += .18;
-      if(r.R * Math.exp(-r.t * .006) < 2.2){
-        ctx.fillStyle = GOLD + ".5)";
-        ctx.beginPath(); ctx.arc(r.cx, r.cy, 1.6, 0, 6.283); ctx.fill();
-        const fresh = makeRose(r.side, r.slotY);
-        fresh.born = r.born; fresh.life = r.life; fresh.cx = r.cx; fresh.cy = r.cy;
-        Object.assign(r, fresh);
-      }
-    }
-
-    function prime(){
-      for(const e of ents){
-        if(e.kind === "net"){ inkNet(e); winnerPath(e); }
-        else for(let i = 0; i < 460; i++) stepRose(e);
-      }
-    }
-    function fit(){
-      if(!active) return false;
-      const w = Math.round(innerWidth), h = Math.round(innerHeight);
-      if(w < 1120){ cv.style.display = "none"; stop(); return false; }
+    function draw(){
+      if(!active || innerWidth < 700){ cv.style.display = "none"; return; }
       cv.style.display = "block";
-      if(w === W && h <= H) return true;
-      W = w; H = Math.max(h, H);
-      dpr = Math.min(devicePixelRatio || 1, 2);
-      cv.width = W * dpr; cv.height = H * dpr;
-      cv.style.width = W + "px"; cv.style.height = H + "px";
+      const S = Math.min(Math.round(Math.min(innerWidth, innerHeight) * .94), 880);
+      const dpr = Math.min(devicePixelRatio || 1, 2);
+      cv.width = S * dpr; cv.height = S * dpr;
+      cv.style.width = S + "px"; cv.style.height = S + "px";
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-      ents = [spawn(0, H * .26), spawn(0, H * .72), spawn(1, H * .3), spawn(1, H * .76)];
-      prime();
-      return true;
-    }
-    function frame(){
-      const now = performance.now();
-      ctx.globalCompositeOperation = "destination-out";
-      ctx.fillStyle = "rgba(0,0,0,.0035)";
-      ctx.fillRect(0, 0, W, H);
-      ctx.globalCompositeOperation = "source-over";
-      for(const e of ents){
-        if(now - e.born > e.life){ Object.assign(e, spawn(e.side, e.slotY)); continue; }
-        e.kind === "net" ? stepNet(e, now) : stepRose(e);
-      }
-      raf = requestAnimationFrame(frame);
-    }
-    function start(){ if(!running && !still.matches && active){ running = true; raf = requestAnimationFrame(frame); } }
-    function stop(){ running = false; cancelAnimationFrame(raf); }
+      ctx.clearRect(0, 0, S, S);
+      const c = S / 2, u = S / 2;
 
-    addEventListener("resize", () => { if(fit()) start(); }, {passive:true});
-    document.addEventListener("visibilitychange", () => document.hidden ? stop() : start());
-    if(fit()) start();
+      const band = (R, A, n, B, m, phase, style, width) => {
+        ctx.strokeStyle = style; ctx.lineWidth = width;
+        ctx.beginPath();
+        const steps = 1440;
+        for(let i = 0; i <= steps; i++){
+          const th = i / steps * Math.PI * 2;
+          const rho = R + A * Math.sin(n * th + phase) + B * Math.sin(m * th);
+          const x = c + rho * Math.cos(th), y = c + rho * Math.sin(th);
+          i ? ctx.lineTo(x, y) : ctx.moveTo(x, y);
+        }
+        ctx.stroke();
+      };
+
+      /* Designed, not random — symmetry is what keeps it elegant. */
+      band(u * .30, u * .045, 12, u * .012, 36, 0,            "rgba(55,44,30,.085)", .6);
+      band(u * .30, u * .045, 12, u * .012, 36, Math.PI / 12, "rgba(138,101,31,.09)", .6);
+      band(u * .43, u * .060, 18, u * .014, 54, 0,            "rgba(55,44,30,.075)", .6);
+      band(u * .56, u * .075, 24, u * .016, 72, 0,            "rgba(55,44,30,.07)",  .6);
+      band(u * .56, u * .075, 24, u * .016, 72, Math.PI / 24, "rgba(138,101,31,.10)", .6);
+      band(u * .69, u * .050, 30, u * .020, 90, 0,            "rgba(55,44,30,.06)",  .55);
+      band(u * .81, u * .035, 36, u * .010, 108, 0,           "rgba(55,44,30,.055)", .55);
+      band(u * .89, u * .015, 48, 0, 0, 0,                    "rgba(138,101,31,.085)", .55);
+    }
+
+    let t;
+    addEventListener("resize", () => { clearTimeout(t); t = setTimeout(draw, 180); }, {passive:true});
+    draw();
 
     return {
-      ensure(){ active = true; if(fit()) start(); },
-      halt(){ active = false; stop(); cv.style.display = "none"; },
+      ensure(){ active = true; draw(); },
+      halt(){ active = false; cv.style.display = "none"; },
     };
   })();
 
@@ -2141,8 +2018,8 @@
       flush();
       document.documentElement.dataset.style = next;
       try{ sessionStorage.setItem("edition-pin", next); }catch(e){}
-      if(next === "catchment"){ FIELD.ensure(); MARGINALIA.halt(); }
-      else { FIELD.halt(); MARGINALIA.ensure(); }
+      if(next === "catchment"){ FIELD.ensure(); MEDALLION.halt(); }
+      else { FIELD.halt(); MEDALLION.ensure(); }
       document.dispatchEvent(new CustomEvent("editionchange"));
       syncControls();
     }
