@@ -3,50 +3,46 @@
     {
       "field": "Water science",
       "when": "Now",
-      "blurb": "Research Fellow at Western Sydney University \u2014 AI and data analytics for water science. Sydney, Australia.",
-      "current": true
+      "current": true,
+      "blurb": "Research Fellow at Western Sydney University, applying AI and data analytics to water science. Sydney, Australia."
     },
     {
       "field": "Software systems",
       "when": "Throughout",
-      "blurb": "LLM agents, cloud systems and browser-based tools. Most of the Projects page comes from here.",
-      "current": false
+      "blurb": "LLM agents, cloud systems and browser-native tools. Most of the Projects page comes from here."
     },
     {
       "field": "Fintech",
       "when": "Earlier",
-      "blurb": "Financial systems and market data \u2014 including Traddy, a portfolio and trading interface for Interactive Brokers.",
-      "current": false
+      "blurb": "Financial systems and market data \u2014 the origin of Traddy, a portfolio and trading interface for Interactive Brokers."
     },
     {
       "field": "Energy & automation",
       "when": "Earlier",
-      "blurb": "Industrial automation and energy systems.",
-      "current": false
+      "blurb": "Industrial and energy systems, where a model being wrong has physical consequences rather than merely inconvenient ones."
     },
     {
       "field": "Mechanical engineering",
       "when": "Where it started",
-      "blurb": "My first discipline.",
-      "current": false
+      "blurb": "The first discipline, and the reason I tend to want a model I can take apart and check rather than one I have to take on faith."
     }
   ],
   "rules": [
     {
-      "name": "One pass, not two",
-      "blurb": "Quickmini trims and compresses in a single ffmpeg pass \u2014 cut footage is never decoded, which took a typical export from 25 seconds to under 6."
+      "name": "Do the work once",
+      "blurb": "Quickmini trims and compresses in a single ffmpeg pass. Two passes would decode and re-encode the video twice and lose quality to a second round of compression, for no gain. Most speed comes from removing a step, not tuning one."
     },
     {
-      "name": "Correct first, fast second",
-      "blurb": "A stream-copy trim was 20\u00d7 faster but could only cut on keyframes, and a 7-second trim once exported 18.8 seconds. It was removed."
+      "name": "Silently wrong beats slow \u2014 never",
+      "blurb": "Stream copy made trims about 20\u00d7 faster, but cuts can only land on keyframes: a requested 7.0s trim exported 18.8s with no error. It was removed. An output that is quietly incorrect costs far more than one that takes 25 seconds."
     },
     {
-      "name": "Keep the lab notes",
-      "blurb": "Approaches that failed \u2014 a multithreaded ffmpeg core that deadlocks, a codec that crashes the wasm heap \u2014 are recorded in the source next to the code they shaped."
+      "name": "Write down what didn't work",
+      "blurb": "The multithreaded ffmpeg core deadlocks mid-encode; VP9 crashes the wasm heap where VP8 survives. Both are recorded in the source with what was observed, so nobody \u2014 including me \u2014 spends another afternoon rediscovering them."
     },
     {
-      "name": "Test the deployed thing",
-      "blurb": "An export once broke while the page looked fine, so changes are verified against the live site, not just a local preview."
+      "name": "Prove it against the real thing",
+      "blurb": "A page that loads proves nothing. Quickmini's export was 100% broken while the interface looked perfect, because the failure only appeared once Export was actually clicked. Verification happens against the deployed site, not localhost."
     }
   ]
 }
