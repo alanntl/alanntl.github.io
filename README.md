@@ -23,23 +23,27 @@ The odds are learned **per browser** from dwell time (visible seconds, capped at
 600 s/session, sub-second fragments ignored):
 
 ```
-p(catchment) = mean dwell catchment / (mean catchment + mean studio)
-clamped to [0.25, 0.75] — a fresh browser is exactly 50:50
+p(catchment) = P(true catchment mean dwell > true parchment mean dwell)
+clamped to [0.10, 0.90] — a fresh browser is exactly 50:50
 ```
 
-The floor binds only when one edition holds attention more than 3× longer, and
-it is what keeps the estimate alive: both editions keep being sampled, so no
-early lucky streak can lock the loser out. Everything lives in `localStorage`
-(`edition-bandit-v2`) — there is no server, so each browser learns its own odds
-rather than pooling across visitors.
+The model is Bayesian (conjugate-normal flavour): each edition carries a
+belief over this visitor's true mean dwell — the posterior mean shrinks
+toward a neutral 45 s prior with the weight of one visit, and the posterior
+variance falls as visits accumulate, so *confidence* moves the odds, not
+just the ratio (one 2:1 visit ⇒ p≈0.66; twenty of them ⇒ 0.90). The 10%
+floor keeps the losing edition sampled forever. Sessions contribute one
+Welford sample each; everything lives in `localStorage`
+(`edition-bandit-v3`) — no server, each browser learns alone. The
+**Experiment** section of the site explains this to visitors and renders
+their own state live: the draw, the two posterior curves, the ledger, and
+a real reset button.
 
 Practical bits: `?edition=catchment|studio` forces one; the draw is pinned per
 tab (`sessionStorage`) so reloads mid-read don't reshuffle; a visible toggle
 with the live odds sits in the rail/menu — a site whose thesis is *can you
 trust it* should not hide that it is running an experiment on the reader. The
-probability rule lives in `pCatchment()` in the EDITIONS module if you ever
-want to reshape it (softmax with a temperature, or a win-rate Beta posterior,
-are the two obvious alternatives).
+probability rule lives in `bayesP()`/`postOf()` near the EDITIONS module.
 
 ## Art direction
 
