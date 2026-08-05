@@ -31,8 +31,11 @@ The model is Bayesian (conjugate-normal flavour): each edition carries a
 belief over this visitor's true mean dwell — the posterior mean shrinks
 toward a neutral 45 s prior with the weight of one visit, and the posterior
 variance falls as visits accumulate, so *confidence* moves the odds, not
-just the ratio (one 2:1 visit ⇒ p≈0.66; twenty of them ⇒ 0.90). The 10%
-floor keeps the losing edition sampled forever. Sessions contribute one
+just the ratio. Updates are deliberately tempered while samples are few —
+the comparison carries √(n/(n+5)) of its weight, and the variance gets its
+own prior so a handful of tidy-looking visits can't fake certainty (one 2:1
+visit ⇒ p≈0.57; eight consistent ones ⇒ 0.90; an unvisited edition holds
+the draw at 50:50). The 10% floor keeps the losing edition sampled forever. Sessions contribute one
 Welford sample each; everything lives in `localStorage`
 (`edition-bandit-v3`) — no server, each browser learns alone. The
 **Experiment** section of the site explains this to visitors and renders

@@ -40,17 +40,19 @@
     try{
       var d = JSON.parse(localStorage.getItem("edition-bandit-v3") || "null");
       if(d && d.s && d.s.catchment && d.s.studio){
-        var PM = 45, PK = 1, VF = 400, DV = 900;
+        var PM = 45, PK = 1, VF = 400, DV = 900, VW = 4, N0 = 5;
         var po = function(a){ var n = a.n || 0;
           var m = (PK * PM + n * (a.mean || 0)) / (PK + n);
-          var sv = n > 1 ? a.M2 / n : DV;
-          return {m: m, v: (sv + VF) / (PK + n)}; };
+          var sv = (VW * DV + (a.M2 || 0)) / (VW + n);
+          return {m: m, v: (sv + VF) / (PK + n), n: n}; };
         var phi = function(z){ var t = 1 / (1 + .2316419 * Math.abs(z));
           var q = .3989423 * Math.exp(-z * z / 2) * t * (.3193815 + t * (-.3565638 +
             t * (1.781478 + t * (-1.821256 + t * 1.330274))));
           return z > 0 ? 1 - q : q; };
         var pc = po(d.s.catchment), ps = po(d.s.studio);
-        p = Math.min(.90, Math.max(.10, phi((pc.m - ps.m) / Math.sqrt(pc.v + ps.v))));
+        var nmin = Math.min(pc.n, ps.n);
+        var damp = Math.sqrt(nmin / (nmin + N0));
+        p = Math.min(.90, Math.max(.10, phi(damp * (pc.m - ps.m) / Math.sqrt(pc.v + ps.v))));
       }
     }catch(e){}
     var style = forced || pin || (Math.random() < p ? "catchment" : "studio");
@@ -742,7 +744,7 @@
           <div><p class="tag">The belief</p><h2 class="display">What your browser thinks.</h2></div>
           <div>
             <div id="exp-curves"></div>
-            <p class="prose" style="margin-top:16px;color:var(--muted)">Each curve is a Bayesian belief about your average stay in one edition — wide when evidence is thin, sharpening as visits accumulate. The odds above are the probability that one true preference beats the other, kept between 10% and 90% so the road not taken stays open.</p>
+            <p class="prose" style="margin-top:16px;color:var(--muted)">Each curve is a Bayesian belief about your average stay in one edition — wide when evidence is thin, sharpening as visits accumulate. The odds are the probability that one true preference beats the other, kept between 10% and 90% — and deliberately tempered while samples are few: with n visits to the lesser-seen edition the comparison carries only √(n/(n+5)) of its weight, so a lucky first visit cannot run away with the draw.</p>
           </div>
         </div>
         <div class="split">
@@ -1737,7 +1739,8 @@
      clamped to [10%, 90%]. A fresh browser is exactly 50:50.
      ═══════════════════════════════════════════════════════════════════ */
   const BANDIT_KEY = "edition-bandit-v3";
-  const PRIOR = {mean:45, k:1, varFloor:400, defVar:900};
+  const PRIOR = {mean:45, k:1, varFloor:400, defVar:900, varW:4};
+  const DAMP_N0 = 5;   /* early-sample tempering: weight = sqrt(n/(n+N0)) */
 
   function phi(z){
     const t = 1 / (1 + .2316419 * Math.abs(z));
@@ -1756,13 +1759,21 @@
   function postOf(a){
     const n = a.n || 0;
     const m = (PRIOR.k * PRIOR.mean + n * (a.mean || 0)) / (PRIOR.k + n);
-    const sv = n > 1 ? a.M2 / n : PRIOR.defVar;
+    /* The variance gets a prior too (weight varW at defVar): a handful of
+       visits that happen to look consistent must not fake certainty. */
+    const sv = (PRIOR.varW * PRIOR.defVar + (a.M2 || 0)) / (PRIOR.varW + n);
     const v = (sv + PRIOR.varFloor) / (PRIOR.k + n);
     return {m, v, sd:Math.sqrt(v), n, mean:a.mean || 0, total:a.total || 0};
   }
   const bayesP = d => {
     const pc = postOf(d.s.catchment), ps = postOf(d.s.studio);
-    return Math.min(.90, Math.max(.10, phi((pc.m - ps.m) / Math.sqrt(pc.v + ps.v))));
+    /* Update rule, tempered: each visit nudges the odds, but while either
+       edition has few samples the comparison carries only part of its
+       weight — sqrt(nmin/(nmin+5)) — so a lucky early visit cannot run
+       away with the draw, and an edition never visited keeps it at 50:50. */
+    const nmin = Math.min(pc.n, ps.n);
+    const damp = Math.sqrt(nmin / (nmin + DAMP_N0));
+    return Math.min(.90, Math.max(.10, phi(damp * (pc.m - ps.m) / Math.sqrt(pc.v + ps.v))));
   };
   const EDNAME = {catchment:"catchment", studio:"parchment"};
 
@@ -1814,9 +1825,11 @@
         `<b style="flex:${p} 1 0">${pct}% catchment</b>` +
         `<b style="flex:${1 - p} 1 0">${100 - pct}% parchment</b>`;
       const visits = pc.n + ps.n;
+      const nmin = Math.min(pc.n, ps.n);
+      const damp = Math.sqrt(nmin / (nmin + DAMP_N0));
       document.getElementById("exp-line").textContent = visits === 0
         ? "No evidence yet — your next visit is a perfect coin flip."
-        : `After ${visits} measured visit${visits === 1 ? "" : "s"}, the belief says there is a ${pct}% chance your true preference is the night river. The draw never leaves 10–90%.`;
+        : `After ${visits} measured visit${visits === 1 ? "" : "s"}, the belief says there is a ${pct}% chance your true preference is the night river. Early-sample tempering is at ${Math.round(damp * 100)}% of full weight; the draw never leaves 10–90%.`;
       document.getElementById("exp-curves").innerHTML = curveSVG(pc, ps);
       document.getElementById("exp-stats").innerHTML = [
         ["The catchment", "night river", pc], ["The parchment", "daylight manuscript", ps],
