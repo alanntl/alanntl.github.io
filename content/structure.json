@@ -26,6 +26,11 @@
       "hidden": false
     },
     {
+      "id": "experiment",
+      "label": "Experiment",
+      "hidden": false
+    },
+    {
       "id": "contact",
       "label": "Contact",
       "hidden": false

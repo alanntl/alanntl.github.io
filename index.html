@@ -38,13 +38,19 @@
     if(pin !== "catchment" && pin !== "studio") pin = null;
     var p = 0.5;
     try{
-      var d = JSON.parse(localStorage.getItem("edition-bandit-v2") || "null");
-      if(d && d.s){
-        var c = d.s.catchment, s = d.s.studio;
-        var mc = c && c.visits ? c.total / c.visits : null;
-        var ms = s && s.visits ? s.total / s.visits : null;
-        if(mc != null && ms != null && mc + ms > 0)
-          p = Math.min(.75, Math.max(.25, mc / (mc + ms)));
+      var d = JSON.parse(localStorage.getItem("edition-bandit-v3") || "null");
+      if(d && d.s && d.s.catchment && d.s.studio){
+        var PM = 45, PK = 1, VF = 400, DV = 900;
+        var po = function(a){ var n = a.n || 0;
+          var m = (PK * PM + n * (a.mean || 0)) / (PK + n);
+          var sv = n > 1 ? a.M2 / n : DV;
+          return {m: m, v: (sv + VF) / (PK + n)}; };
+        var phi = function(z){ var t = 1 / (1 + .2316419 * Math.abs(z));
+          var q = .3989423 * Math.exp(-z * z / 2) * t * (.3193815 + t * (-.3565638 +
+            t * (1.781478 + t * (-1.821256 + t * 1.330274))));
+          return z > 0 ? 1 - q : q; };
+        var pc = po(d.s.catchment), ps = po(d.s.studio);
+        p = Math.min(.90, Math.max(.10, phi((pc.m - ps.m) / Math.sqrt(pc.v + ps.v))));
       }
     }catch(e){}
     var style = forced || pin || (Math.random() < p ? "catchment" : "studio");
@@ -202,6 +208,15 @@
   .ed-toggle:hover{color:var(--bone)}
   .ed-odds{display:block;margin-top:6px;font-family:var(--mono);font-size:.55rem;letter-spacing:.12em;color:var(--faint)}
   .bar nav .ed-toggle{padding:11px 12px;font-size:.62rem}
+  /* ── The experiment page's instruments ───────────────────────────── */
+  .odds-bar{display:flex;height:38px;border:1px solid var(--line);overflow:hidden}
+  .odds-bar b{display:flex;align-items:center;justify-content:center;white-space:nowrap;overflow:hidden;
+    font-family:var(--mono);font-size:.63rem;letter-spacing:.1em;font-weight:400;
+    color:var(--deep);background:var(--bone);transition:flex .7s var(--ease)}
+  .odds-bar b:last-child{background:var(--mark)}
+  #exp-curves svg{width:100%;height:auto}
+  #exp-curves text{font-family:var(--mono)}
+
   .preview-badge{position:fixed;z-index:120;left:14px;bottom:14px;padding:7px 12px;
     background:var(--deeper);border:1px solid var(--line);color:var(--muted);
     font-family:var(--mono);font-size:.6rem;letter-spacing:.12em;text-transform:uppercase;
@@ -708,6 +723,42 @@
       </div></div>
     </section>
 
+    <!-- ── EXPERIMENT ──────────────────────────────────────────────── -->
+    <section class="panel" id="panel-experiment" data-panel="experiment" hidden>
+      <div class="head"><div class="shell">
+        <p class="tc">Experiment</p>
+        <h1 class="display">One site, two editions.</h1>
+        <p class="lede">Every visit opens as either the night river or the parchment. Which one you get is a draw — and the odds are learned from you, by you, on your own device. This page is the experiment, running.</p>
+      </div></div>
+      <div class="body"><div class="shell">
+        <div class="split">
+          <div><p class="tag">Your draw</p><h2 class="display">Next visit's odds.</h2></div>
+          <div>
+            <div class="odds-bar" id="exp-bar" role="img" aria-label="Your current draw odds"></div>
+            <p class="prose" id="exp-line" style="margin-top:14px;color:var(--muted)"></p>
+          </div>
+        </div>
+        <div class="split">
+          <div><p class="tag">The belief</p><h2 class="display">What your browser thinks.</h2></div>
+          <div>
+            <div id="exp-curves"></div>
+            <p class="prose" style="margin-top:16px;color:var(--muted)">Each curve is a Bayesian belief about your average stay in one edition — wide when evidence is thin, sharpening as visits accumulate. The odds above are the probability that one true preference beats the other, kept between 10% and 90% so the road not taken stays open.</p>
+          </div>
+        </div>
+        <div class="split">
+          <div><p class="tag">The ledger</p><h2 class="display">Your data.</h2></div>
+          <div>
+            <ul class="list" id="exp-stats"></ul>
+            <p class="prose" style="margin-top:18px;color:var(--muted)">All of this lives in your browser's storage. There is no server, no analytics, and nothing is sent anywhere — resetting below restarts your experiment at a coin flip.</p>
+            <div class="hero-actions" style="margin-top:22px">
+              <button type="button" class="btn ed-toggle"></button>
+              <button type="button" class="btn" id="exp-reset"><span>Reset my odds</span></button>
+            </div>
+          </div>
+        </div>
+      </div></div>
+    </section>
+
     <!-- ── CONTACT ─────────────────────────────────────────────────── -->
     <section class="panel" id="panel-contact" data-panel="contact" hidden>
       <div class="head" data-numeral="05"><div class="shell">
@@ -741,7 +792,8 @@
     {id:"projects", label:"Projects",   tc:"02"},
     {id:"writing",  label:"Writing",    tc:"03"},
     {id:"research", label:"Research",   tc:"04"},
-    {id:"contact",  label:"Contact",    tc:"05"},
+    {id:"experiment", label:"Experiment", tc:"05"},
+    {id:"contact",  label:"Contact",    tc:"06"},
   ];
 
   const PROJECTS = [
@@ -932,7 +984,7 @@
   /* One JSON per page, so one CMS save is one small commit. */
   const CONTENT_FILES = ["structure","home","projects","writing","research","background","contact"];
 
-  const CORE_PANELS = new Set(["home","work","projects","writing","research","contact"]);
+  const CORE_PANELS = new Set(["home","work","projects","writing","research","experiment","contact"]);
 
   async function fetchRaw(base, bust){
     const q = name => fetch(base + name + ".json" + (bust ? "?t=" + Date.now() : ""),
@@ -1041,7 +1093,10 @@
     /* Every panel's watermark numeral follows its chapter code. */
     SECTIONS_LIVE.forEach(s => {
       const head = document.querySelector(`[data-panel="${CSS.escape(s.id)}"] .head`);
-      if(head) head.dataset.numeral = s.tc;
+      if(!head) return;
+      head.dataset.numeral = s.tc;
+      const eyebrow = head.querySelector(".tc");
+      if(eyebrow) eyebrow.textContent = `${s.tc} — ${s.label}`;
     });
 
     /* Custom pages become real panels — created here, updated in place,
@@ -1284,6 +1339,7 @@
     window.scrollTo({top:0, behavior:"smooth"});
     document.getElementById("bar-menu").removeAttribute("open");
     FIELD.retarget(name);
+    if(name === "experiment") try{ EXPERIMENT.render(); }catch(e){}
   }
 
   /* Delegated, because the nav and the hydrograph are rebuilt whenever
@@ -1672,76 +1728,178 @@
   })();
 
   /* ═══════════════════════════════════════════════════════════════════
+     THE MODEL
+     A Bayesian belief per edition over this visitor's true mean dwell.
+     Conjugate-normal flavour: the posterior mean shrinks toward a neutral
+     prior (45s, weight of one visit) and the posterior variance falls as
+     evidence accumulates, so confidence — not just the ratio — moves the
+     odds. p(catchment) = P(true catchment mean > true parchment mean),
+     clamped to [10%, 90%]. A fresh browser is exactly 50:50.
+     ═══════════════════════════════════════════════════════════════════ */
+  const BANDIT_KEY = "edition-bandit-v3";
+  const PRIOR = {mean:45, k:1, varFloor:400, defVar:900};
+
+  function phi(z){
+    const t = 1 / (1 + .2316419 * Math.abs(z));
+    const q = .3989423 * Math.exp(-z * z / 2) * t * (.3193815 + t * (-.3565638 +
+      t * (1.781478 + t * (-1.821256 + t * 1.330274))));
+    return z > 0 ? 1 - q : q;
+  }
+  function loadBandit(){
+    try{
+      const d = JSON.parse(localStorage.getItem(BANDIT_KEY) || "null");
+      if(d && d.s && d.s.catchment && d.s.studio) return d;
+    }catch(e){}
+    return {s:{catchment:{n:0, mean:0, M2:0, total:0, sid:null},
+               studio:{n:0, mean:0, M2:0, total:0, sid:null}}};
+  }
+  function postOf(a){
+    const n = a.n || 0;
+    const m = (PRIOR.k * PRIOR.mean + n * (a.mean || 0)) / (PRIOR.k + n);
+    const sv = n > 1 ? a.M2 / n : PRIOR.defVar;
+    const v = (sv + PRIOR.varFloor) / (PRIOR.k + n);
+    return {m, v, sd:Math.sqrt(v), n, mean:a.mean || 0, total:a.total || 0};
+  }
+  const bayesP = d => {
+    const pc = postOf(d.s.catchment), ps = postOf(d.s.studio);
+    return Math.min(.90, Math.max(.10, phi((pc.m - ps.m) / Math.sqrt(pc.v + ps.v))));
+  };
+  const EDNAME = {catchment:"catchment", studio:"parchment"};
+
+  /* ═══════════════════════════════════════════════════════════════════
+     THE EXPERIMENT PAGE
+     Renders this visitor's own bandit state: the draw, the two posterior
+     curves, and the raw ledger. Everything read from localStorage; the
+     reset genuinely restarts their experiment.
+     ═══════════════════════════════════════════════════════════════════ */
+  const EXPERIMENT = (() => {
+    const mmss = t => Math.floor(t / 60) + ":" + String(Math.round(t % 60)).padStart(2, "0");
+
+    function curveSVG(pc, ps){
+      const W = 640, H = 210, pad = 34, base = H - 26;
+      const xmax = Math.max(120, pc.m + 3.2 * pc.sd, ps.m + 3.2 * ps.sd);
+      const pdf = (x, P) => Math.exp(-((x - P.m) ** 2) / (2 * P.v)) / Math.sqrt(2 * Math.PI * P.v);
+      const ymax = Math.max(pdf(pc.m, pc), pdf(ps.m, ps));
+      const X = x => pad + (W - 2 * pad) * x / xmax;
+      const path = P => {
+        let d = "";
+        for(let i = 0; i <= 140; i++){
+          const x = i / 140 * xmax;
+          d += (i ? "L" : "M") + X(x).toFixed(1) + "," + (base - (base - 40) * pdf(x, P) / ymax).toFixed(1);
+        }
+        return d;
+      };
+      const close = Math.abs(X(pc.m) - X(ps.m)) < 70;
+      const ticks = [0, 30, 60, 120, 180, 240, 300, 420, 600].filter(t => t <= xmax);
+      return `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Belief curves over your mean dwell per edition">
+        <line x1="${pad}" y1="${base}" x2="${W - pad}" y2="${base}" stroke="currentColor" stroke-opacity=".4"/>
+        ${ticks.map(t => `<text x="${X(t)}" y="${H - 9}" text-anchor="middle" font-size="9" fill="currentColor" fill-opacity=".55">${t}s</text>`).join("")}
+        <path d="${path(pc)} " fill="none" stroke="currentColor" stroke-opacity=".8" stroke-width="1.6"/>
+        <path d="${path(ps)}" fill="none" stroke="var(--mark)" stroke-width="1.6"/>
+        <line x1="${X(pc.m)}" y1="30" x2="${X(pc.m)}" y2="${base}" stroke="currentColor" stroke-opacity=".3" stroke-dasharray="3 3"/>
+        <line x1="${X(ps.m)}" y1="30" x2="${X(ps.m)}" y2="${base}" stroke="var(--mark)" stroke-opacity=".5" stroke-dasharray="3 3"/>
+        <text x="${X(pc.m)}" y="22" text-anchor="middle" font-size="9.5" fill="currentColor">catchment</text>
+        <text x="${X(ps.m)}" y="${close ? 36 : 22}" text-anchor="middle" font-size="9.5" fill="var(--mark)">parchment</text>
+      </svg>`;
+    }
+
+    function render(){
+      const bar = document.getElementById("exp-bar");
+      if(!bar) return;
+      const d = loadBandit();
+      const pc = postOf(d.s.catchment), ps = postOf(d.s.studio);
+      const p = bayesP(d);
+      const pct = Math.round(p * 100);
+      bar.innerHTML =
+        `<b style="flex:${p} 1 0">${pct}% catchment</b>` +
+        `<b style="flex:${1 - p} 1 0">${100 - pct}% parchment</b>`;
+      const visits = pc.n + ps.n;
+      document.getElementById("exp-line").textContent = visits === 0
+        ? "No evidence yet — your next visit is a perfect coin flip."
+        : `After ${visits} measured visit${visits === 1 ? "" : "s"}, the belief says there is a ${pct}% chance your true preference is the night river. The draw never leaves 10–90%.`;
+      document.getElementById("exp-curves").innerHTML = curveSVG(pc, ps);
+      document.getElementById("exp-stats").innerHTML = [
+        ["The catchment", "night river", pc], ["The parchment", "daylight manuscript", ps],
+      ].map(([name, sub, P]) => `<li class="item">
+          <h3>${name}</h3>
+          <div class="meta"><span class="chip">${P.n} visit${P.n === 1 ? "" : "s"}</span>
+          <span class="chip">avg ${P.n ? mmss(P.mean) : "—"}</span></div>
+          <p>${sub} — ${P.n ? `about ${mmss(P.total)} of your time in total; the belief centres on ${mmss(P.m)} ± ${Math.round(P.sd)}s.` : "not yet visited on this browser."}</p>
+        </li>`).join("");
+    }
+
+    document.addEventListener("click", e => {
+      if(!e.target.closest("#exp-reset")) return;
+      try{ localStorage.removeItem(BANDIT_KEY); sessionStorage.removeItem("edition-pin"); }catch(err){}
+      location.reload();
+    });
+    setInterval(() => {
+      const panel = document.querySelector('[data-panel="experiment"]');
+      if(panel && !panel.hidden && !document.hidden) render();
+    }, 6000);
+
+    return {render};
+  })();
+
+  /* ═══════════════════════════════════════════════════════════════════
      EDITIONS
      The measuring half of the edition draw in <head>. Dwell — seconds
      with the page actually visible — is attributed to whichever edition
-     is on screen and folded into that edition's running mean. Next
-     visit's draw:
-
-       p(catchment) = mean_c / (mean_c + mean_s), clamped to [0.25, 0.75]
-
-     Which converges on the true dwell share: p* = μc/(μc+μs). Two
-     properties worth knowing. The floor binds only when one edition
-     holds attention more than 3× longer (μs > 3μc ⟺ p < 0.25). And the
-     floor is what keeps the estimate alive: with p ≥ 25% both editions
-     keep being sampled, so their means keep updating and no early lucky
-     streak can lock the loser out permanently.
-
-     All storage is localStorage — there is no server, so each browser
-     learns its own odds rather than pooling across visitors.
+     is on screen. Each session contributes one sample per edition to the
+     Welford running statistics the Bayesian model reads (a growing
+     sample is replaced, not double-counted). All storage is local: each
+     browser runs its own experiment.
      ═══════════════════════════════════════════════════════════════════ */
   (() => {
-    const KEY = "edition-bandit-v2";
-    const CAP = 600;                 /* max seconds one session can credit */
+    const CAP = 600;
     const SID = Math.random().toString(36).slice(2);
     const styleNow = () => document.documentElement.dataset.style || "catchment";
-
-    let data;
-    try{ data = JSON.parse(localStorage.getItem(KEY) || "null"); }catch(e){ data = null; }
-    if(!data || !data.s || !data.s.catchment || !data.s.studio)
-      data = {s:{catchment:{total:0, visits:0, sid:null}, studio:{total:0, visits:0, sid:null}}};
+    const data = loadBandit();
 
     let t0 = performance.now();
     const sess = {catchment:0, studio:0};
 
-    /* Accumulate-and-reset: safe to call any number of times. Runs on
-       hide, on unload and on toggle. Sub-second fragments are noise, and
-       CAP stops a tab left open overnight from counting as devotion. */
+    const welAdd = (rec, x) => {
+      rec.n++; const d = x - rec.mean;
+      rec.mean += d / rec.n; rec.M2 += d * (x - rec.mean);
+    };
+    const welRemove = (rec, x) => {
+      if(rec.n < 2){ rec.n = 0; rec.mean = 0; rec.M2 = 0; return; }
+      const d = x - rec.mean;
+      rec.mean = (rec.n * rec.mean - x) / (rec.n - 1);
+      rec.M2 = Math.max(0, rec.M2 - d * (x - rec.mean));
+      rec.n--;
+    };
+
     function flush(){
       const cur = styleNow(), rec = data.s[cur];
       const dt = (performance.now() - t0) / 1000; t0 = performance.now();
       if(!rec || dt < 1) return;
       const add = Math.min(dt, Math.max(0, CAP - sess[cur]));
       if(add <= 0) return;
+      const prev = sess[cur];
       sess[cur] += add; rec.total += add;
-      if(rec.sid !== SID){ rec.sid = SID; rec.visits += 1; }
-      try{ localStorage.setItem(KEY, JSON.stringify(data)); }catch(e){}
+      if(rec.sid !== SID){ rec.sid = SID; welAdd(rec, sess[cur]); }
+      else { welRemove(rec, prev); welAdd(rec, sess[cur]); }
+      try{ localStorage.setItem(BANDIT_KEY, JSON.stringify(data)); }catch(e){}
     }
     addEventListener("pagehide", flush);
     document.addEventListener("visibilitychange",
       () => document.hidden ? flush() : (t0 = performance.now()));
 
-    function pCatchment(){
-      const c = data.s.catchment, s = data.s.studio;
-      const mc = c.visits ? c.total / c.visits : null;
-      const ms = s.visits ? s.total / s.visits : null;
-      if(mc == null || ms == null || mc + ms <= 0) return 0.5;
-      return Math.min(0.75, Math.max(0.25, mc / (mc + ms)));
-    }
-
     function syncControls(){
       const other = styleNow() === "catchment" ? "studio" : "catchment";
-      const p = Math.round(pCatchment() * 100);
+      const p = Math.round(bayesP(data) * 100);
       document.querySelectorAll(".ed-toggle").forEach(b =>
-        b.textContent = `View the ${other} edition`);
+        b.textContent = `View the ${EDNAME[other]} edition`);
       document.querySelectorAll(".ed-odds").forEach(e => {
         e.textContent = `draw ${p}:${100 - p}`;
-        e.title = `Odds the next visit opens as catchment vs studio — learned from your dwell time in this browser. Floor 25%.`;
+        e.title = `Bayesian odds the next visit opens as catchment vs parchment — learned from your dwell in this browser. Floor 10%.`;
       });
     }
 
     function switchTo(next){
-      flush();                        /* close the ledger on the old edition */
+      flush();
       document.documentElement.dataset.style = next;
       try{ sessionStorage.setItem("edition-pin", next); }catch(e){}
       if(next === "catchment"){ FIELD.ensure(); }
@@ -1750,7 +1908,6 @@
       syncControls();
     }
 
-    /* Delegated: the bar-menu copy of the toggle is rebuilt with the nav. */
     document.addEventListener("click", e => {
       if(e.target.closest(".ed-toggle"))
         switchTo(styleNow() === "catchment" ? "studio" : "catchment");
