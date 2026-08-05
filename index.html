@@ -597,6 +597,42 @@
 
   html[data-style="studio"] .head{padding:10vh 0 5vh}
   html[data-style="studio"] .body{padding-bottom:10vh}
+
+  /* ── Refinement: title page, marginalia, candlelight, living margins ── */
+  html[data-style="studio"] .tag{font-family:var(--serif);font-variant:small-caps;text-transform:none;
+    letter-spacing:.16em;font-size:.82rem;color:var(--mark)}
+  html[data-style="studio"] .tc{font-family:var(--serif);font-variant:small-caps;text-transform:none;
+    letter-spacing:.2em;font-size:.88rem;color:#8a651f}
+
+  /* The home hero set as a manuscript title page: centred, the author a
+     cameo miniature above the title, the opening text rubricated. */
+  html[data-style="studio"] .hero-grid{grid-template-columns:1fr;justify-items:center;text-align:center;gap:22px}
+  html[data-style="studio"] .hero-copy{display:flex;flex-direction:column;align-items:center}
+  html[data-style="studio"] .hero-actions{justify-content:center}
+  html[data-style="studio"] #hero-lede{text-align:left;max-width:52ch}
+  html[data-style="studio"] .hero .portrait{order:-1;width:150px;transform:none;margin-bottom:4px;
+    animation:fade 1.1s var(--ease) .2s both}
+  html[data-style="studio"] .portrait img{border:2px solid var(--bone);padding:0;border-radius:50%;
+    background:#f6eed8;filter:sepia(.3) contrast(1.02);
+    box-shadow:0 0 0 5px var(--deep),0 0 0 6px #8a651f,0 16px 36px rgba(55,44,30,.24)}
+  html[data-style="studio"] .portrait figcaption{text-align:center}
+  html[data-style="studio"] .hero h1 .ln i{animation-name:inkcenter}
+  @keyframes inkcenter{from{clip-path:inset(0 50% 0 50%)}to{clip-path:inset(0 -2% 0 -2%)}}
+
+  /* Chapter headings carry a small gold flourish. */
+  html[data-style="studio"] .split h2::after{content:"";display:block;width:118px;height:9px;margin-top:14px;
+    background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='118' height='9'%3E%3Cline x1='0' y1='4.5' x2='48' y2='4.5' stroke='%238a651f' stroke-opacity='.55'/%3E%3Crect x='55' y='0.7' width='7.6' height='7.6' transform='rotate(45 58.8 4.5)' fill='%238a651f' fill-opacity='.8'/%3E%3Cline x1='70' y1='4.5' x2='118' y2='4.5' stroke='%238a651f' stroke-opacity='.55'/%3E%3C/svg%3E") no-repeat}
+
+  /* Candlelight drifts across the vellum. */
+  html[data-style="studio"] .veil{display:block;z-index:1;
+    background:radial-gradient(720px 520px at 50% 50%,rgba(255,205,115,.14),rgba(255,205,115,0) 70%);
+    background-size:230% 210%;background-repeat:no-repeat;
+    animation:candle 26s ease-in-out infinite alternate}
+  @keyframes candle{from{background-position:10% 6%}to{background-position:82% 34%}}
+
+  /* The living margins. */
+  #vines{position:fixed;inset:0;z-index:0;pointer-events:none;display:none}
+  html[data-style="studio"] #vines{display:block}
   </style>
 </head>
 <body>
@@ -1653,6 +1689,98 @@
     };
   })();
 
+  /* ═══════════════════════════════════════════════════════════════════
+     THE LIVING MARGINS
+     The parchment's ambient life, answering the catchment's flow field:
+     filigree tendrils grow slowly along the page margins, steered by the
+     same noise the field flows through, sprouting gold leaves and the
+     rare rubric berry. Old growth ghosts back into the vellum over about
+     a minute, so the margins stay mid-illumination. Desktop only — under
+     1120px there are no margins to illuminate.
+     ═══════════════════════════════════════════════════════════════════ */
+  const VINES = (() => {
+    const cv = document.createElement("canvas");
+    cv.id = "vines"; cv.setAttribute("aria-hidden", "true");
+    document.body.prepend(cv);
+    const ctx = cv.getContext("2d");
+    const still = matchMedia("(prefers-reduced-motion:reduce)");
+    let active = document.documentElement.dataset.style === "studio";
+    let W = 0, H = 0, dpr = 1, raf = 0, running = false, tendrils = [];
+    const BAND = 92;
+
+    const spawn = side => {
+      const cx = side === 0 ? 20 + BAND / 2 : W - 20 - BAND / 2;
+      return {side, x: cx + (Math.random() - .5) * BAND * .7,
+              y: Math.random() * H, vx: 0,
+              vy: Math.random() < .5 ? .72 : -.72,
+              life: 260 + Math.random() * 320, step: 0};
+    };
+
+    function grow(t){
+      const curl = (noise(t.x * .013, t.y * .013) - .5) * .4;
+      const angle = Math.atan2(t.vy, t.vx || 1e-4) + curl;
+      t.vx = Math.cos(angle) * .72; t.vy = Math.sin(angle) * .72;
+      const cx = t.side === 0 ? 20 + BAND / 2 : W - 20 - BAND / 2;
+      t.vx += (cx - t.x) * .0011;
+      const nx = t.x + t.vx, ny = t.y + t.vy;
+      ctx.globalCompositeOperation = "source-over";
+      ctx.strokeStyle = "rgba(55,44,30,.30)";
+      ctx.lineWidth = .8;
+      ctx.beginPath(); ctx.moveTo(t.x, t.y); ctx.lineTo(nx, ny); ctx.stroke();
+      t.x = nx; t.y = ny; t.step++; t.life--;
+      if(t.step % 34 === 0){
+        ctx.fillStyle = "rgba(138,101,31,.42)";
+        ctx.beginPath();
+        ctx.ellipse(t.x, t.y, 2.6, 1.3, Math.atan2(t.vy, t.vx), 0, Math.PI * 2);
+        ctx.fill();
+      } else if(t.step % 89 === 0){
+        ctx.fillStyle = "rgba(156,47,29,.4)";
+        ctx.beginPath(); ctx.arc(t.x, t.y, 1.4, 0, Math.PI * 2); ctx.fill();
+      }
+      if(t.y < -12) t.y = H + 10;
+      if(t.y > H + 12) t.y = -10;
+      if(t.life <= 0 || t.x < 4 || t.x > W - 4) Object.assign(t, spawn(t.side));
+    }
+
+    function fit(){
+      if(!active) return false;
+      const w = Math.round(innerWidth), h = Math.round(innerHeight);
+      if(w < 1120){ cv.style.display = "none"; stop(); return false; }
+      cv.style.display = "block";
+      if(w === W && h <= H) return true;   /* iOS toolbar: height grow-only */
+      W = w; H = Math.max(h, H);
+      dpr = Math.min(devicePixelRatio || 1, 2);
+      cv.width = W * dpr; cv.height = H * dpr;
+      cv.style.width = W + "px"; cv.style.height = H + "px";
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      tendrils = [spawn(0), spawn(1), spawn(Math.round(Math.random()))];
+      /* Arrive mid-illumination rather than on bare vellum. */
+      for(let i = 0; i < 380; i++) tendrils.forEach(grow);
+      return true;
+    }
+
+    function frame(){
+      /* Ghost old growth back toward bare vellum without painting over
+         the page's own fibre texture. */
+      ctx.globalCompositeOperation = "destination-out";
+      ctx.fillStyle = "rgba(0,0,0,.012)";
+      ctx.fillRect(0, 0, W, H);
+      ctx.globalCompositeOperation = "source-over";
+      tendrils.forEach(grow);
+      raf = requestAnimationFrame(frame);
+    }
+    function start(){ if(!running && !still.matches && active){ running = true; raf = requestAnimationFrame(frame); } }
+    function stop(){ running = false; cancelAnimationFrame(raf); }
+
+    addEventListener("resize", () => { if(fit()) start(); }, {passive:true});
+    document.addEventListener("visibilitychange", () => document.hidden ? stop() : start());
+    if(fit()) start();
+
+    return {
+      ensure(){ active = true; if(fit()) start(); },
+      halt(){ active = false; stop(); cv.style.display = "none"; },
+    };
+  })();
 
   resolveHash();
 
@@ -1915,8 +2043,8 @@
       flush();
       document.documentElement.dataset.style = next;
       try{ sessionStorage.setItem("edition-pin", next); }catch(e){}
-      if(next === "catchment"){ FIELD.ensure(); }
-      else { FIELD.halt(); }
+      if(next === "catchment"){ FIELD.ensure(); VINES.halt(); }
+      else { FIELD.halt(); VINES.ensure(); }
       document.dispatchEvent(new CustomEvent("editionchange"));
       syncControls();
     }
