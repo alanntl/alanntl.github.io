@@ -679,10 +679,10 @@
           <p class="tc">Alan Ng — Sydney, Australia</p>
           <h1 class="display">
             <span class="ln"><i>Different fields.</i></span>
-            <span class="ln"><i>The same question:</i></span>
-            <span class="ln"><i><em>can you trust it?</em></i></span>
+            <span class="ln"><i>One thread:</i></span>
+            <span class="ln"><i><em>tools people can trust.</em></i></span>
           </h1>
-          <p id="hero-lede">I am a Research Fellow at Western Sydney University, applying AI and data analytics to water science. Before that: mechanical engineering, software, automation, energy and fintech. What carries across is an interest in tools people can actually check — and in helping them understand complex systems well enough to make better decisions.</p>
+          <p id="hero-lede">I am a Research Fellow at Western Sydney University, applying AI and data analytics to water science. My background spans mechanical engineering, software, automation, energy and fintech, and I enjoy working with LLM agents, cloud systems, mathematical modelling and ideas across disciplines. I care about building practical, trustworthy digital tools that connect technical advances with domain knowledge and help people make better decisions.</p>
           <div class="hero-actions">
             <a class="btn solid" href="#research" data-go="research"><span>The research</span></a>
             <a class="btn" href="#projects" data-go="projects"><span>Things I've built</span></a>
@@ -709,8 +709,8 @@
         <div class="split">
           <div><p class="tag">Position</p><h2 class="display">What I'm doing now.</h2></div>
           <div class="prose">
-            <p><strong>Research Fellow, Western Sydney University.</strong> Based in Sydney, Australia, applying AI and data analytics to water science — the kind of problem where the modelling only matters if the people who know the catchment can interrogate the result.</p>
-            <p>Alongside that I keep building small tools: LLM agents, cloud systems, mathematical modelling, and browser-native software that does its work on your own machine rather than someone else's server.</p>
+            <p><strong>Research Fellow, Western Sydney University.</strong> Based in Sydney, Australia, applying AI and data analytics to water science.</p>
+            <p>Alongside the research I build small tools — LLM agents, cloud systems, mathematical modelling, and browser-based software — and enjoy connecting ideas across disciplines.</p>
           </div>
         </div>
       </div></div>
@@ -721,7 +721,7 @@
       <div class="head" data-numeral="01"><div class="shell">
         <p class="tc">01 — Background</p>
         <h1 class="display">Background.</h1>
-        <p class="lede">A researcher with interests spanning engineering, data science, finance and software systems — and the working rules that came out of moving between them.</p>
+        <p class="lede">A background spanning engineering, data science, finance and software systems — with a few notes from building things along the way.</p>
       </div></div>
       <div class="body"><div class="shell" id="work-body"></div></div>
     </section>
@@ -731,7 +731,7 @@
       <div class="head" data-numeral="02"><div class="shell">
         <p class="tc">02 — Projects</p>
         <h1 class="display">Things I've built.</h1>
-        <p class="lede">Mostly small, mostly browser-native, mostly built because the existing tool wanted my files on its server.</p>
+        <p class="lede">Small tools, mostly browser-based, built so the heavy work runs on your own machine.</p>
       </div></div>
       <div class="body"><div class="shell">
         <label class="search">
@@ -748,7 +748,7 @@
       <div class="head" data-numeral="03"><div class="shell">
         <p class="tc">03 — Writing</p>
         <h1 class="display">Notes.</h1>
-        <p class="lede">Write-ups of things that took longer than they should have, kept mainly so I don't solve them twice.</p>
+        <p class="lede">Write-ups of things that took longer than they should have.</p>
       </div></div>
       <div class="body"><div class="shell">
         <label class="search">
@@ -765,7 +765,7 @@
       <div class="head" data-numeral="04"><div class="shell">
         <p class="tc">04 — Research</p>
         <h1 class="display">Research.</h1>
-        <p class="lede">Water science at Western Sydney University, and reinforcement learning applied to problems where the interesting question is which inputs break the solver.</p>
+        <p class="lede">Water science at Western Sydney University, and reinforcement learning for hard combinatorial problems.</p>
       </div></div>
       <div class="body"><div class="shell">
         <ul class="list" id="research-list"></ul>
@@ -890,12 +890,12 @@
   const RESEARCH = [
     {
       name:"AI and data analytics for water science", year:"Now", status:"current",
-      blurb:"My work as a Research Fellow at Western Sydney University. Water is a domain where a model is only useful if the people who know the catchment can interrogate it — which makes it a good test of whether an AI tool is genuinely trustworthy or merely confident.",
+      blurb:"My current research at Western Sydney University: applying AI and data analytics to water science.",
       tags:["AI","Data analytics","Water science","Western Sydney University"], links:[],
     },
     {
       name:"Australia India Water Centre", year:"Ongoing", status:"applied",
-      blurb:"A bilateral centre hosted at Western Sydney University, connecting research, education and training on water across Australia and India. I rebuilt the Centre's website as a single self-contained page with no build step or CDN.",
+      blurb:"A bilateral centre hosted at Western Sydney University, connecting research, education and training on water across Australia and India. I rebuilt the Centre's website as a single self-contained page.",
       tags:["Water","Groundwater","Bilateral research"],
       links:[{label:"Centre site", href:"https://aiwc.org.au/"}],
     },
@@ -915,26 +915,26 @@
      roles aren't here — see the TODO note in the README. */
   const BACKGROUND = [
     {field:"Water science", when:"Now", current:true,
-     blurb:"Research Fellow at Western Sydney University, applying AI and data analytics to water science. Sydney, Australia."},
+     blurb:"Research Fellow at Western Sydney University — AI and data analytics for water science. Sydney, Australia."},
     {field:"Software systems", when:"Throughout",
-     blurb:"LLM agents, cloud systems and browser-native tools. Most of the Projects page comes from here."},
+     blurb:"LLM agents, cloud systems and browser-based tools. Most of the Projects page comes from here."},
     {field:"Fintech", when:"Earlier",
-     blurb:"Financial systems and market data — the origin of Traddy, a portfolio and trading interface for Interactive Brokers."},
+     blurb:"Financial systems and market data — including Traddy, a portfolio and trading interface for Interactive Brokers."},
     {field:"Energy & automation", when:"Earlier",
-     blurb:"Industrial and energy systems, where a model being wrong has physical consequences rather than merely inconvenient ones."},
+     blurb:"Industrial automation and energy systems."},
     {field:"Mechanical engineering", when:"Where it started",
-     blurb:"The first discipline, and the reason I tend to want a model I can take apart and check rather than one I have to take on faith."},
+     blurb:"My first discipline."},
   ];
 
   const PRINCIPLES = [
-    {name:"Do the work once",
-     blurb:"Quickmini trims and compresses in a single ffmpeg pass. Two passes would decode and re-encode the video twice and lose quality to a second round of compression, for no gain. Most speed comes from removing a step, not tuning one."},
-    {name:"Silently wrong beats slow — never",
-     blurb:"Stream copy made trims about 20× faster, but cuts can only land on keyframes: a requested 7.0s trim exported 18.8s with no error. It was removed. An output that is quietly incorrect costs far more than one that takes 25 seconds."},
-    {name:"Write down what didn't work",
-     blurb:"The multithreaded ffmpeg core deadlocks mid-encode; VP9 crashes the wasm heap where VP8 survives. Both are recorded in the source with what was observed, so nobody — including me — spends another afternoon rediscovering them."},
-    {name:"Prove it against the real thing",
-     blurb:"A page that loads proves nothing. Quickmini's export was 100% broken while the interface looked perfect, because the failure only appeared once Export was actually clicked. Verification happens against the deployed site, not localhost."},
+    {name:"One pass, not two",
+     blurb:"Quickmini trims and compresses in a single ffmpeg pass — cut footage is never decoded, which took a typical export from 25 seconds to under 6."},
+    {name:"Correct first, fast second",
+     blurb:"A stream-copy trim was 20× faster but could only cut on keyframes, and a 7-second trim once exported 18.8 seconds. It was removed."},
+    {name:"Keep the lab notes",
+     blurb:"Approaches that failed — a multithreaded ffmpeg core that deadlocks, a codec that crashes the wasm heap — are recorded in the source next to the code they shaped."},
+    {name:"Test the deployed thing",
+     blurb:"An export once broke while the page looked fine, so changes are verified against the live site, not just a local preview."},
   ];
 
   /* Only channels I could verify. Add an email here when you've decided
