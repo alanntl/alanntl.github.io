@@ -496,22 +496,21 @@
   html[data-style="studio"] .grain,
   html[data-style="studio"] .curtain{display:none}
 
-  /* The magic: everything arrives by diffusion — a blurred sepia blot
-     blooming from a point and resolving crisp, ink soaking into vellum.
-     (Also, for the deep-learning reader: denoising.) */
-  html[data-style="studio"] .page{animation:pagefade .7s var(--ease) both}
+  /* The magic: words simply appear on the page, one after another, in
+     writing order — magic-map style. The split into word spans and the
+     per-word delays come from enchant() in the script; each word lands
+     with only the faintest ink-settle, because the sequence is the
+     spell, not a smear. */
+  html[data-style="studio"] .page{animation:pagefade .6s var(--ease) both}
   @keyframes pagefade{from{opacity:0}}
-  @keyframes inkdiffuse{
-    0%{opacity:0;filter:blur(16px) contrast(.72) sepia(.45);
-       clip-path:circle(7% at 24% 22%);transform:translateY(7px)}
-    45%{opacity:1;filter:blur(6px) contrast(.9) sepia(.22);
-        clip-path:circle(78% at 32% 34%)}
-    100%{opacity:1;filter:blur(0) contrast(1) sepia(0);
-         clip-path:circle(155% at 42% 42%);transform:none}
+  html[data-style="studio"] .panel > *{animation:pagefade .45s var(--ease) both}
+  html[data-style="studio"] .mw{opacity:0;display:inline-block;
+    animation:mwappear .22s ease-out both}
+  @keyframes mwappear{
+    from{opacity:0;filter:blur(2px);transform:translateY(3px)}
+    60%{opacity:1}
+    to{opacity:1;filter:blur(0);transform:none}
   }
-  html[data-style="studio"] .panel > *{animation:inkdiffuse .95s var(--ease) both}
-  html[data-style="studio"] .panel > *:nth-child(2){animation-delay:.12s}
-  html[data-style="studio"] .panel > *:nth-child(3){animation-delay:.2s}
 
   /* Type: bookish serif; the question is rubricated. */
   html[data-style="studio"] .display{font-weight:520;letter-spacing:-.015em;line-height:1.05}
@@ -520,14 +519,11 @@
   html[data-style="studio"] .hero h1 em{font-style:italic;color:var(--mark)}
   html[data-style="studio"] .hero{padding:11vh 0 8vh}
 
-  /* The title page materialises piece by piece. */
-  html[data-style="studio"] .hero .tc{animation:inkdiffuse .9s var(--ease) .5s both}
-  html[data-style="studio"] .hero h1 .ln i{transform:none;animation:inkdiffuse 1.15s var(--ease) both}
-  html[data-style="studio"] .hero h1 .ln:nth-child(1) i{animation-delay:.7s}
-  html[data-style="studio"] .hero h1 .ln:nth-child(2) i{animation-delay:1.05s}
-  html[data-style="studio"] .hero h1 .ln:nth-child(3) i{animation-delay:1.4s}
-  html[data-style="studio"] .hero p{animation:inkdiffuse 1.1s var(--ease) 1.85s both}
-  html[data-style="studio"] .hero-actions{animation:inkdiffuse 1s var(--ease) 2.15s both}
+  /* Parents sit still; their words do the appearing. */
+  html[data-style="studio"] .hero .tc{animation:none;opacity:1}
+  html[data-style="studio"] .hero h1 .ln i{transform:none;animation:none}
+  html[data-style="studio"] .hero p{animation:none;opacity:1}
+  html[data-style="studio"] .hero-actions{animation:pagefade .55s var(--ease) 2.4s both}
 
   /* The rubricated initial: the story starts with a drop cap. */
   html[data-style="studio"] #hero-lede::first-letter{
@@ -570,13 +566,11 @@
     font-size:1.15rem;color:#8a651f}
   html[data-style="studio"] .split h2{font-weight:540;letter-spacing:-.015em}
 
-  /* Scroll storytelling: blocks diffuse in as the reader reaches them. */
-  html[data-style="studio"] .rv{opacity:0;filter:blur(13px) sepia(.3);
-    clip-path:circle(9% at 22% 24%);transform:translateY(7px);
-    transition:opacity 1s var(--ease),filter 1s var(--ease),
-      clip-path 1s var(--ease),transform 1s var(--ease)}
-  html[data-style="studio"] .rv.in{opacity:1;filter:blur(0) sepia(0);
-    clip-path:circle(155% at 42% 42%);transform:none}
+  /* Scroll storytelling: blocks appear plainly as the reader reaches
+     them — the word-magic belongs to the headings. */
+  html[data-style="studio"] .rv{opacity:0;transform:translateY(10px);
+    transition:opacity .7s var(--ease),transform .7s var(--ease)}
+  html[data-style="studio"] .rv.in{opacity:1;transform:none}
 
   /* Rubric buttons; the lean toward the cursor stays. */
   html[data-style="studio"] .btn{border:1.5px solid var(--mark);border-radius:2px;padding:12px 22px;
@@ -626,7 +620,7 @@
   html[data-style="studio"] .hero-actions{justify-content:center}
   html[data-style="studio"] #hero-lede{text-align:left;max-width:52ch}
   html[data-style="studio"] .hero .portrait{order:-1;width:150px;transform:none;margin-bottom:4px;
-    animation:inkdiffuse 1.15s var(--ease) .1s both}
+    animation:pagefade .5s var(--ease) .1s both}
   html[data-style="studio"] .portrait img{border:2px solid var(--bone);padding:0;border-radius:50%;
     background:#f6eed8;filter:sepia(.3) contrast(1.02);
     box-shadow:0 0 0 5px var(--deep),0 0 0 6px #8a651f,0 16px 36px rgba(55,44,30,.24)}
@@ -1248,7 +1242,75 @@
       </a>`).join("");
 
     drawGauge(C);
+    enchant();
     booted = true;
+  }
+
+  /* ── The spell ──────────────────────────────────────────────────────
+     Split headings, bylines and ledes into word spans with cumulative
+     delays, so text appears word by word in writing order whenever its
+     panel is shown. Elements rebuilt by boot get fresh splits; elements
+     that still hold their spans reuse the stored original, so repeated
+     boots never double-wrap. Parents keep an aria-label with the full
+     text and the span shell is aria-hidden, so screen readers hear
+     sentences, not confetti. */
+  function splitWords(el, t0, step){
+    if(!el) return t0;
+    const orig = el.querySelector(".mw") ? el.dataset.orig : el.innerHTML;
+    if(!orig) return t0;
+    el.dataset.orig = orig;
+    const tmp = document.createElement("span");
+    tmp.innerHTML = orig;
+    let t = t0;
+    (function wrap(node){
+      for(const child of [...node.childNodes]){
+        if(child.nodeType === 3){
+          const frag = document.createDocumentFragment();
+          for(const part of child.textContent.split(/(\s+)/)){
+            if(!part) continue;
+            if(/^\s+$/.test(part)){ frag.append(part); continue; }
+            const sp = document.createElement("span");
+            sp.className = "mw";
+            sp.textContent = part;
+            sp.style.animationDelay = Math.round(t) + "ms";
+            t += step;
+            frag.append(sp);
+          }
+          child.replaceWith(frag);
+        } else if(child.nodeType === 1) wrap(child);
+      }
+    })(tmp);
+    el.setAttribute("aria-label", tmp.textContent);
+    const shell = document.createElement("span");
+    shell.setAttribute("aria-hidden", "true");
+    shell.append(...tmp.childNodes);
+    el.replaceChildren(shell);
+    return t;
+  }
+
+  function enchant(){
+    /* The title page, in writing order. */
+    let t = 350;
+    t = splitWords(document.querySelector(".hero .tc"), t, 46) + 170;
+    document.querySelectorAll(".hero h1 .ln i").forEach(ln => {
+      t = splitWords(ln, t, 105) + 170;
+    });
+    t += 120;
+    t = splitWords(document.getElementById("hero-lede"), t, 24) + 150;
+    const acts = document.querySelector(".hero-actions");
+    if(acts) acts.style.animationDelay = Math.round(t) + "ms";
+
+    /* Every chapter head, replayed on each visit to its panel. */
+    document.querySelectorAll(".panel .head").forEach(head => {
+      let ht = 180;
+      ht = splitWords(head.querySelector(".tc"), ht, 40) + 140;
+      ht = splitWords(head.querySelector("h1"), ht, 90) + 160;
+      splitWords(head.querySelector(".lede"), ht, 17);
+    });
+
+    /* Section titles join the spell. */
+    document.querySelectorAll(".body .split h2").forEach(h2 =>
+      splitWords(h2, 140, 60));
   }
 
   (async () => {
