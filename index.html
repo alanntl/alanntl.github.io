@@ -607,7 +607,10 @@
   /* The home hero set as a manuscript title page: centred, the author a
      cameo miniature above the title, the opening text rubricated. */
   html[data-style="studio"] .hero-grid{grid-template-columns:1fr;justify-items:center;text-align:center;gap:22px}
-  html[data-style="studio"] .hero-copy{display:flex;flex-direction:column;align-items:center}
+  /* width:100% is load-bearing: .hero-copy is an inline-size container,
+     and a shrink-to-fit container resolves to zero width — every line
+     then wraps at min-content. A definite width restores sane cqw. */
+  html[data-style="studio"] .hero-copy{width:100%;display:flex;flex-direction:column;align-items:center}
   html[data-style="studio"] .hero-actions{justify-content:center}
   html[data-style="studio"] #hero-lede{text-align:left;max-width:52ch}
   html[data-style="studio"] .hero .portrait{order:-1;width:150px;transform:none;margin-bottom:4px;
@@ -671,7 +674,7 @@
             <span class="ln"><i>The same question:</i></span>
             <span class="ln"><i><em>can you trust it?</em></i></span>
           </h1>
-          <p id="hero-lede">I'm a Research Fellow at Western Sydney University, applying AI and data analytics to water science. Before that: mechanical engineering, software, automation, energy and fintech. What carries across is an interest in tools people can actually check — and in helping them understand complex systems well enough to make better decisions.</p>
+          <p id="hero-lede">I am a Research Fellow at Western Sydney University, applying AI and data analytics to water science. Before that: mechanical engineering, software, automation, energy and fintech. What carries across is an interest in tools people can actually check — and in helping them understand complex systems well enough to make better decisions.</p>
           <div class="hero-actions">
             <a class="btn solid" href="#research" data-go="research"><span>The research</span></a>
             <a class="btn" href="#projects" data-go="projects"><span>Things I've built</span></a>
