@@ -4,7 +4,7 @@
       "name": "AI and data analytics for water science",
       "year": "Now",
       "status": "current",
-      "blurb": "My work as a Research Fellow at Western Sydney University. Water is a domain where a model is only useful if the people who know the catchment can interrogate it — which makes it a good test of whether an AI tool is genuinely trustworthy or merely confident.",
+      "blurb": "My current research at Western Sydney University: applying AI and data analytics to water science.",
       "tags": [
         "AI",
         "Data analytics",
@@ -17,7 +17,7 @@
       "name": "Australia India Water Centre",
       "year": "Ongoing",
       "status": "applied",
-      "blurb": "A bilateral centre hosted at Western Sydney University, connecting research, education and training on water across Australia and India. I rebuilt the Centre's website as a single self-contained page with no build step or CDN.",
+      "blurb": "A bilateral centre hosted at Western Sydney University, connecting research, education and training on water across Australia and India. I rebuilt the Centre's website as a single self-contained page.",
       "tags": [
         "Water",
         "Groundwater",
@@ -43,7 +43,7 @@
       "links": []
     },
     {
-      "name": "aSwam — adaptive firefighting drone swarm",
+      "name": "aSwam \u2014 adaptive firefighting drone swarm",
       "year": "Ongoing",
       "status": "research",
       "blurb": "A reinforcement learning model for a drone swarm that coordinates to fight spreading fires, where the policy has to adapt as the fire front changes rather than follow a fixed assignment.",
