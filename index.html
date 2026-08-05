@@ -502,7 +502,10 @@
      with only the faintest ink-settle, because the sequence is the
      spell, not a smear. */
   html[data-style="studio"] .page{animation:pagefade .6s var(--ease) both}
-  @keyframes pagefade{from{opacity:0}}
+  @keyframes pagefade{from{opacity:0}to{opacity:1}}
+  /* The explicit to{} matters: the hero portrait and actions carry
+     opacity:0 in the base stylesheet, and a keyframe with no end state
+     inherits that — animating 0 to 0 and pinning them invisible. */
   html[data-style="studio"] .panel > *{animation:pagefade .45s var(--ease) both}
   html[data-style="studio"] .mw{opacity:0;display:inline-block;
     animation:mwappear .22s ease-out both}
